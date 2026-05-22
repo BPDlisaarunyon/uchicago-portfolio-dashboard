@@ -1,0 +1,2297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UChicago Medicine — Portfolio Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,300;0,400;0,700;0,900;1,400&family=Playfair+Display:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --midnight:  #07284C;
+    --anchor:    #4C576E;
+    --keylime:   #78BF26;
+    --ash:       #BBBDC7;
+    --violet:    #6022A6;
+    --bg:        #ffffff;
+    --bg-2:      #f8f9fa;
+    --bg-3:      #f1f3f6;
+    --text:      #07284C;
+    --text-2:    #4C576E;
+    --text-3:    #9ca3af;
+    --border:    rgba(7,40,76,0.10);
+    --border-md: rgba(7,40,76,0.20);
+    --r-sm: 4px; --r-md: 8px; --r-lg: 12px;
+    --font: 'Lato', 'Segoe UI', Arial, sans-serif;
+    --font-serif: 'Playfair Display', Georgia, serif;
+    --font-mono: 'Courier New', Courier, monospace;
+  }
+  body { font-family: var(--font); background: var(--bg-3); color: var(--text); min-height: 100vh; font-size: 14px; line-height: 1.5; }
+
+  /* ── HEADER ── */
+  .header { background: var(--midnight); padding: 22px 32px 18px; border-bottom: 4px solid var(--keylime); position: sticky; top: 0; z-index: 100; }
+  .header-inner { max-width: 1400px; margin: 0 auto; display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
+  .header-brand { display: flex; flex-direction: column; }
+  .header-eyebrow { font-size: 13px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--keylime); margin-bottom: 2px; }
+  .header-week { font-size: 13px; font-weight: 400; color: rgba(255,255,255,0.6); margin-bottom: 6px; letter-spacing: 0.03em; }
+  .header h1 { font-family: var(--font-serif); font-size: 26px; font-weight: 600; color: #fff; letter-spacing: 0.01em; line-height: 1.15; }
+  .header-dots { display: flex; gap: 5px; align-items: center; margin-top: 6px; }
+  .header-dot { width: 8px; height: 8px; border-radius: 50%; }
+  .header-dot.lime { background: var(--keylime); }
+  .header-dot.violet { background: #6022A6; }
+  .header-dot.anchor { background: var(--anchor); }
+
+  /* METRICS */
+  .metrics { display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-start; }
+  .metric { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); border-radius: var(--r-md); padding: 10px 16px; text-align: center; min-width: 80px; }
+  .metric-val { font-size: 22px; font-weight: 900; color: #fff; line-height: 1; }
+  .metric-val.green  { color: var(--keylime); }
+  .metric-val.amber  { color: #fde68a; }
+  .metric-val.scope-edit { font-size: 15px; font-weight: 700; color: var(--keylime); background: transparent; border: none; border-bottom: 1px dashed rgba(120,191,38,0.5); width: 80px; text-align: center; font-family: var(--font); outline: none; cursor: text; padding: 2px 0; }
+  .metric-val.scope-edit::placeholder { color: rgba(120,191,38,0.4); font-size: 13px; }
+  .metric-label { font-size: 10px; color: rgba(255,255,255,0.50); margin-top: 3px; letter-spacing: 0.05em; text-transform: uppercase; }
+
+  /* ── FILTERS ── */
+  .filter-bar { background: var(--bg); border-bottom: 1px solid var(--border); position: sticky; top: 87px; z-index: 99; box-shadow: 0 2px 8px rgba(7,40,76,0.06); }
+  .filter-inner { max-width: 1400px; margin: 0 auto; padding: 10px 32px; display: flex; gap: 7px; flex-wrap: wrap; align-items: center; }
+  .filter-inner.row2 { padding-top: 8px; padding-bottom: 8px; border-top: 1px solid var(--border); gap: 10px; }
+  .divider { width: 1px; height: 22px; background: var(--border); flex-shrink: 0; }
+
+  .sow-btn { font-size: 11px; font-weight: 700; letter-spacing: 0.04em; padding: 4px 13px; border-radius: 20px; border: 1.5px solid var(--border-md); background: transparent; color: var(--text-2); cursor: pointer; font-family: var(--font); transition: all 0.12s; white-space: nowrap; }
+  .sow-btn:hover { background: var(--bg-2); color: var(--midnight); }
+  .sow-btn.active { color: #fff; border-color: transparent; }
+  .sow-btn.active.all { background: var(--midnight); }
+  .sow-btn.active.f1  { background: #185FA5; }
+  .sow-btn.active.sl  { background: var(--keylime); }
+  .sow-btn.active.cp  { background: var(--violet); }
+  .sow-btn.active.co  { background: #0F766E; }
+  .sow-btn.active.br  { background: #C2410C; }
+  .sow-btn.active.op  { background: #B45309; }
+  .sow-btn.active.ao  { background: var(--anchor); }
+
+  .status-chip { font-size: 11px; font-weight: 600; padding: 3px 11px; border-radius: 20px; border: 1.5px solid var(--border-md); background: transparent; color: var(--text-2); cursor: pointer; font-family: var(--font); transition: all 0.12s; white-space: nowrap; }
+  .status-chip:hover { background: var(--bg-2); }
+  .status-chip.active { border-color: transparent; }
+  .status-chip.active.s-all { background: var(--bg-2); color: var(--midnight); }
+  .status-chip.active.s-ot  { background: #dcfce7; color: #166534; }
+  .status-chip.active.s-co  { background: #dbeafe; color: #1e40af; }
+  .status-chip.active.s-oh  { background: #fef9c3; color: #854d0e; }
+  .status-chip.active.s-ns  { background: #f3f4f6; color: #374151; }
+  .status-chip.active.s-fc  { background: #ffedd5; color: #9a3412; }
+  .status-chip.active.s-pt  { background: #ede9fe; color: #5b21b6; }
+
+  .week-wrap { display: flex; align-items: center; gap: 7px; }
+  .week-wrap label { font-size: 12px; font-weight: 600; color: var(--text-2); white-space: nowrap; }
+  select { font-size: 12px; font-weight: 600; padding: 5px 28px 5px 10px; border: 1.5px solid var(--border-md); border-radius: var(--r-md); background: var(--bg) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%234C576E' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right 8px center; color: var(--text); font-family: var(--font); cursor: pointer; appearance: none; -webkit-appearance: none; }
+  select:focus { outline: none; border-color: var(--keylime); }
+  .search-wrap { position: relative; margin-left: auto; }
+  .search-wrap i { position: absolute; left: 9px; top: 50%; transform: translateY(-50%); font-size: 14px; color: var(--text-3); pointer-events: none; }
+  .search-wrap input { font-size: 12px; font-weight: 600; padding: 5px 10px 5px 29px; border: 1.5px solid var(--border-md); border-radius: 20px; background: var(--bg); color: var(--text); font-family: var(--font); width: 200px; }
+  .search-wrap input:focus { outline: none; border-color: var(--keylime); }
+
+  /* ── LAYOUT ── */
+  .main { background: var(--bg-3); }
+  .body-layout { max-width: 1400px; margin: 0 auto; display: flex; align-items: flex-start; }
+  .projects-col { flex: 1; min-width: 0; padding: 22px 24px 40px 32px; }
+  .sidebar-col { width: 264px; flex-shrink: 0; padding: 22px 18px 40px; border-left: 1px solid var(--border); position: sticky; top: 148px; max-height: calc(100vh - 158px); overflow-y: auto; align-self: flex-start; display: none; background: var(--bg); }
+  .sidebar-col.visible { display: block; }
+  .section-title { font-size: 10px; font-weight: 900; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 12px; }
+  .sidebar-note-card { background: var(--bg-3); border: 1px solid var(--border); border-left: 3px solid transparent; border-radius: var(--r-md); padding: 10px 12px; margin-bottom: 8px; }
+  .sidebar-note-proj { font-size: 10px; font-weight: 800; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.05em; }
+  .sidebar-note-text { font-size: 12px; color: var(--text); line-height: 1.55; white-space: pre-wrap; }
+  .sidebar-empty { font-size: 12px; color: var(--text-3); line-height: 1.6; }
+
+  /* ── SOW SECTION ── */
+  .sow-section { margin-bottom: 20px; }
+  .sow-header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; padding: 10px 14px; background: var(--midnight); border-radius: var(--r-md) var(--r-md) 0 0; }
+  .sow-header-left { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .sow-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+  .sow-name { font-size: 13px; font-weight: 900; color: #fff; letter-spacing: 0.03em; }
+  .sow-count { font-size: 11px; color: rgba(255,255,255,0.50); font-weight: 400; }
+  .sow-stats { display: flex; gap: 10px; flex-wrap: wrap; }
+  .sow-stat { font-size: 11px; display: flex; align-items: center; gap: 3px; font-weight: 600; }
+  .sow-scope-wrap { display: flex; align-items: center; gap: 6px; }
+  .sow-scope-label { font-size: 10px; color: rgba(255,255,255,0.5); font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; }
+  .sow-scope-input { font-size: 12px; font-weight: 800; color: var(--keylime); background: transparent; border: none; border-bottom: 1px dashed rgba(120,191,38,0.5); width: 90px; text-align: right; font-family: var(--font); outline: none; cursor: text; padding: 1px 0; }
+  .sow-scope-input::placeholder { color: rgba(120,191,38,0.35); font-size: 11px; }
+  .sow-body { border: 1px solid var(--border); border-top: none; border-radius: 0 0 var(--r-md) var(--r-md); overflow: hidden; background: var(--bg); }
+
+  /* ── PROJECT ROW ── */
+  .proj-row { padding: 11px 14px; border-bottom: 1px solid var(--border); border-left: 4px solid transparent; cursor: pointer; transition: background 0.1s; }
+  .proj-row:last-child { border-bottom: none; }
+  .proj-row:hover { background: var(--bg-2); }
+  .proj-top { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+
+  /* Project ID — cleaner, more readable */
+  .proj-id { font-family: var(--font); font-size: 11px; font-weight: 900; color: var(--midnight); background: rgba(7,40,76,0.07); border: 1px solid rgba(7,40,76,0.15); padding: 2px 8px; border-radius: var(--r-sm); flex-shrink: 0; letter-spacing: 0.04em; }
+
+  .proj-name { font-size: 13px; font-weight: 700; color: var(--midnight); flex: 1; min-width: 140px; line-height: 1.35; }
+  .proj-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; margin-left: auto; flex-wrap: wrap; }
+  .proj-badges { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+
+  /* Status badges only */
+  .badge { font-size: 10px; font-weight: 800; padding: 2px 9px; border-radius: 20px; white-space: nowrap; flex-shrink: 0; letter-spacing: 0.04em; text-transform: uppercase; }
+  .b-ot { background: #dcfce7; color: #166534; }
+  .b-co { background: #dbeafe; color: #1e40af; }
+  .b-oh { background: #fef9c3; color: #854d0e; }
+  .b-ns { background: #f3f4f6; color: #374151; }
+  .b-fc { background: #ffedd5; color: #9a3412; }
+  .b-pt { background: #ede9fe; color: #5b21b6; }
+
+  .person { display: flex; align-items: center; gap: 5px; }
+  .person-role { font-size: 9px; font-weight: 900; color: var(--text-3); letter-spacing: 0.07em; text-transform: uppercase; }
+  .avatar { width: 26px; height: 26px; border-radius: 50%; background: rgba(7,40,76,0.08); border: 1.5px solid rgba(7,40,76,0.15); display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 900; color: var(--anchor); flex-shrink: 0; letter-spacing: 0.03em; }
+  .person-name { font-size: 11px; font-weight: 700; color: var(--text-2); }
+  .chevron { font-size: 13px; color: var(--text-3); transition: transform 0.15s; flex-shrink: 0; }
+  .chevron.open { transform: rotate(180deg); }
+
+  /* ── EXPANDED DETAIL ── */
+  .expand-detail { display: none; background: var(--bg-2); border-top: 1px dashed var(--border); padding: 14px; gap: 18px; flex-wrap: wrap; }
+  .expand-detail.show { display: flex; }
+  .detail-block { flex: 1; min-width: 180px; }
+  .detail-label { font-size: 10px; font-weight: 900; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.09em; margin-bottom: 6px; }
+  .detail-text { font-size: 12px; color: var(--text); line-height: 1.65; }
+  .date-item { display: flex; align-items: flex-start; gap: 6px; font-size: 12px; color: var(--text); line-height: 1.5; padding: 2px 0; }
+  .date-item i { color: var(--midnight); font-size: 13px; margin-top: 1px; flex-shrink: 0; }
+
+  /* Team member with remove button */
+  .team-member { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+  .team-remove { background: none; border: none; cursor: pointer; color: var(--text-3); font-size: 13px; padding: 0; line-height: 1; margin-left: 2px; transition: color 0.1s; }
+  .team-remove:hover { color: #dc2626; }
+  .team-restore { font-size: 10px; color: var(--keylime); cursor: pointer; font-weight: 700; letter-spacing: 0.04em; margin-top: 4px; display: inline-block; border: none; background: none; font-family: var(--font); }
+  .team-restore:hover { text-decoration: underline; }
+
+  /* NOTES */
+  .notes-block { width: 100%; padding-top: 12px; margin-top: 4px; border-top: 1px solid var(--border); }
+  .notes-block textarea { width: 100%; font-size: 12px; font-family: var(--font); color: var(--text); background: var(--bg); border: 1.5px solid var(--border-md); border-radius: var(--r-md); padding: 8px 10px; resize: vertical; min-height: 72px; line-height: 1.6; }
+  .notes-block textarea:focus { outline: none; border-color: var(--keylime); }
+  .notes-block textarea::placeholder { color: var(--text-3); }
+  .notes-footer { display: flex; align-items: center; gap: 8px; margin-top: 6px; }
+  .notes-save { font-size: 11px; font-weight: 700; padding: 4px 14px; border-radius: var(--r-md); border: 1.5px solid var(--anchor); background: var(--bg); color: var(--anchor); cursor: pointer; font-family: var(--font); transition: all 0.1s; }
+  .notes-save:hover { background: var(--midnight); color: #fff; border-color: var(--midnight); }
+  .notes-saved { font-size: 11px; color: var(--keylime); display: none; align-items: center; gap: 4px; font-weight: 700; }
+
+  /* ── BELOW PANELS ── */
+  .below-panel { display: none; margin-top: 6px; }
+  .below-panel.visible { display: block; }
+  .below-card { background: var(--bg); border: 1px solid var(--border); border-left: 4px solid var(--keylime); border-radius: var(--r-lg); padding: 18px 20px; margin-bottom: 14px; }
+  .below-card-title { font-size: 13px; font-weight: 900; color: var(--midnight); margin-bottom: 10px; display: flex; align-items: center; gap: 7px; letter-spacing: 0.02em; }
+  .below-card textarea { width: 100%; font-size: 13px; font-family: var(--font); color: var(--text); background: var(--bg-2); border: 1.5px solid var(--border-md); border-radius: var(--r-md); padding: 10px 12px; resize: vertical; min-height: 90px; line-height: 1.65; }
+  .below-card textarea:focus { outline: none; border-color: var(--keylime); background: var(--bg); }
+  .below-card textarea::placeholder { color: var(--text-3); }
+  .below-footer { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+  .below-save { font-size: 11px; font-weight: 700; padding: 4px 14px; border-radius: var(--r-md); border: 1.5px solid var(--anchor); background: var(--bg); color: var(--anchor); cursor: pointer; font-family: var(--font); transition: all 0.1s; }
+  .below-save:hover { background: var(--midnight); color: #fff; border-color: var(--midnight); }
+  .below-saved { font-size: 11px; color: var(--keylime); display: none; align-items: center; gap: 4px; font-weight: 700; }
+
+  /* ── ACCOUNT OPS PANEL ── */
+  .ao-panel { display: none; }
+  .ao-panel.visible { display: block; }
+  .ao-card { background: var(--bg); border: 1px solid var(--border); border-left: 4px solid var(--anchor); border-radius: var(--r-lg); padding: 20px; margin-bottom: 16px; }
+  .ao-title { font-size: 14px; font-weight: 900; color: var(--midnight); margin-bottom: 4px; display: flex; align-items: center; gap: 8px; font-family: var(--font-serif); }
+  .ao-subtitle { font-size: 11px; color: var(--text-3); margin-bottom: 12px; font-weight: 400; }
+  .ao-card textarea { width: 100%; font-size: 13px; font-family: var(--font); color: var(--text); background: var(--bg-2); border: 1.5px solid var(--border-md); border-radius: var(--r-md); padding: 10px 12px; resize: vertical; min-height: 120px; line-height: 1.65; }
+  .ao-card textarea:focus { outline: none; border-color: var(--anchor); background: var(--bg); }
+  .ao-card textarea::placeholder { color: var(--text-3); }
+  .ao-footer { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
+  .ao-save { font-size: 11px; font-weight: 700; padding: 4px 14px; border-radius: var(--r-md); border: 1.5px solid var(--anchor); background: var(--bg); color: var(--anchor); cursor: pointer; font-family: var(--font); transition: all 0.1s; }
+  .ao-save:hover { background: var(--midnight); color: #fff; border-color: var(--midnight); }
+  .ao-clear { font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: var(--r-md); border: 1.5px solid var(--border-md); background: var(--bg); color: var(--text-3); cursor: pointer; font-family: var(--font); transition: all 0.1s; }
+  .ao-clear:hover { background: #fee2e2; color: #dc2626; border-color: #dc2626; }
+  .ao-saved { font-size: 11px; color: var(--keylime); display: none; align-items: center; gap: 4px; font-weight: 700; }
+  .ao-persist-badge { font-size: 9px; font-weight: 800; background: rgba(7,40,76,0.08); color: var(--anchor); padding: 2px 8px; border-radius: 20px; letter-spacing: 0.05em; text-transform: uppercase; }
+
+  .empty { padding: 2.5rem; text-align: center; font-size: 13px; color: var(--text-2); background: var(--bg); border: 1px solid var(--border); border-radius: var(--r-md); }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 900px) {
+    .body-layout { flex-direction: column; }
+    .sidebar-col { width: 100%; border-left: none; border-top: 1px solid var(--border); position: static; max-height: none; padding: 16px 16px 24px; }
+  }
+  @media (max-width: 640px) {
+    .header { padding: 14px 16px; }
+    .header h1 { font-size: 20px; }
+    .projects-col { padding: 14px 16px 32px; }
+    .filter-inner { padding: 8px 16px; }
+    .metrics { display: none; }
+    .search-wrap input { width: 130px; }
+  }
+
+/* ── COMMS SUB-FILTERS ── */
+.comms-status-panel{background:var(--bg);border:1px solid var(--border);border-left:4px solid #0F766E;border-radius:var(--r-lg);padding:16px 18px;margin-bottom:14px}
+.comms-status-title{font-size:12px;font-weight:900;color:var(--midnight);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.comms-sub-bar{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;padding:10px 0 4px}
+.csub-btn{font-size:11px;font-weight:700;padding:4px 13px;border-radius:20px;border:1.5px solid var(--border-md);background:var(--bg);color:var(--text-2);cursor:pointer;font-family:var(--font);transition:all 0.12s;white-space:nowrap}
+.csub-btn:hover{background:var(--bg-2)}
+.csub-btn.active{background:#0F766E;color:#fff;border-color:transparent}
+.comms-tab-panel{display:none}
+.comms-tab-panel.active{display:block}
+/* Editable table */
+.edit-table-wrap{overflow-x:auto;border-radius:var(--r-md);border:1px solid var(--border);margin-bottom:8px}
+.edit-table{border-collapse:collapse;width:100%;font-size:12px;font-family:var(--font);background:var(--bg)}
+.edit-table th{background:var(--midnight);color:#fff;font-weight:800;font-size:10px;text-transform:uppercase;letter-spacing:0.07em;padding:8px 10px;border:1px solid rgba(255,255,255,0.1);white-space:nowrap;position:sticky;top:0}
+.edit-table td{padding:6px 8px;border:1px solid var(--border);vertical-align:top;line-height:1.4}
+.edit-table tr:nth-child(even){background:var(--bg-2)}
+.edit-table tr:hover td{background:rgba(120,191,38,0.05)}
+.cell-edit{display:block;width:100%;min-width:60px;min-height:22px;padding:2px 3px;font-size:12px;font-family:var(--font);color:var(--text);background:transparent;border:none;outline:none;resize:none;line-height:1.4;word-break:break-word;cursor:text}
+.cell-edit:focus{background:rgba(120,191,38,0.08);border-radius:3px;outline:1px solid var(--keylime)}
+/* Exec cards */
+.exec-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-bottom:8px}
+.exec-card{background:var(--bg);border:1px solid var(--border);border-radius:var(--r-md);overflow:hidden}
+.exec-card-header{background:var(--midnight);padding:8px 10px}
+.exec-name{font-size:12px;font-weight:800;color:#fff;line-height:1.3}
+.exec-priority{font-size:9px;font-weight:700;letter-spacing:0.07em;margin-top:2px;text-transform:uppercase}
+.exec-priority.pri{color:var(--keylime)}
+.exec-priority.sec{color:var(--ash)}
+.exec-cols{display:grid;grid-template-columns:1fr 1fr;gap:0}
+.exec-col{padding:8px}
+.exec-col-label{font-size:9px;font-weight:900;color:var(--text-3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:5px;padding-bottom:3px;border-bottom:1px solid var(--border)}
+.exec-item{font-size:11px;color:var(--text);padding:2px 0;display:flex;gap:4px;align-items:flex-start}
+.exec-item-edit{font-size:11px;font-family:var(--font);color:var(--text);background:transparent;border:none;outline:none;width:100%;resize:none;padding:2px 3px;min-height:18px;line-height:1.4;cursor:text}
+.exec-item-edit:focus{background:rgba(120,191,38,0.1);border-radius:2px;outline:1px solid var(--keylime)}
+.add-row-btn{font-size:11px;font-weight:600;color:var(--keylime);background:none;border:1px dashed var(--keylime);border-radius:var(--r-sm);padding:3px 10px;cursor:pointer;font-family:var(--font);margin-top:4px;transition:all 0.1s}
+.add-row-btn:hover{background:rgba(120,191,38,0.08)}
+
+
+  /* AL filter chips */
+  .al-chip { font-size:11px;font-weight:700;padding:3px 12px;border-radius:20px;border:1.5px solid var(--border-md);background:var(--bg);color:var(--text-2);cursor:pointer;font-family:var(--font);transition:all 0.12s;white-space:nowrap; }
+  .al-chip:hover { background:var(--bg-2); }
+  .al-chip.active { background:var(--midnight);color:#fff;border-color:transparent; }
+
+  /* Calendar date picker */
+  .cal-wrap { display:flex;align-items:center;gap:7px; }
+  .cal-btn { display:flex;align-items:center;gap:6px;padding:5px 12px;border:1.5px solid var(--border-md);border-radius:var(--r-md);background:var(--bg);color:var(--text-2);cursor:pointer;font-family:var(--font);font-size:12px;font-weight:600;transition:all 0.12s; }
+  .cal-btn:hover { background:var(--bg-2);border-color:var(--anchor); }
+  .cal-btn.active { background:var(--midnight);color:#fff;border-color:var(--midnight); }
+  .cal-btn i { font-size:14px; }
+  #cal-input { position:absolute;opacity:0;pointer-events:none;width:0;height:0; }
+
+
+  /* New status badges */
+  .b-eo  { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
+  .b-nie { background: #fef3c7; color: #92400e; }
+  .b-op  { background: #ede9fe; color: #5b21b6; }
+  /* New status chips */
+  .status-chip.active.s-eo  { background: #f0fdf4; color: #166534; }
+  .status-chip.active.s-nie { background: #fef3c7; color: #92400e; }
+  .status-chip.active.s-op  { background: #ede9fe; color: #5b21b6; }
+  /* No Campaign SOW section */
+  .sow-btn.active.nc { background: #6b7280; }
+  .sow-section.nc-section .sow-header { background: #4b5563; }
+
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-inner">
+    <div class="header-brand">
+      <div class="header-eyebrow">Internal portfolio dashboard</div>
+      <div class="header-week">Week of 5/18 &nbsp;·&nbsp; UChicago Medicine</div>
+      <h1>UChicago Medicine</h1>
+      <div class="header-dots">
+        <div class="header-dot lime"></div>
+        <div class="header-dot violet"></div>
+        <div class="header-dot anchor"></div>
+      </div>
+    </div>
+    <div class="metrics" id="metrics"></div>
+  </div>
+</div>
+
+<!-- FILTERS -->
+<div class="filter-bar">
+  <div class="filter-inner" id="filter-sow-status"></div>
+  <div class="filter-inner row2" id="filter-week"></div>
+  <div class="filter-inner row2" id="filter-al"></div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="body-layout">
+
+    <div class="projects-col">
+      <!-- COMMS PANELS (above project accordion) -->
+      <div class="below-panel" id="comms-panels"></div>
+
+      <div id="project-list"></div>
+
+      <!-- HAAS F1 PANEL -->
+      <div class="below-panel" id="f1-panels">
+        <div class="below-card">
+          <div class="below-card-title"><i class="ti ti-rocket"></i> Program updates</div>
+          <textarea id="f1-program-updates" placeholder="Enter program updates for Haas F1 this week…"></textarea>
+          <div class="below-footer">
+            <button class="below-save" id="f1-program-updates-save">Save</button>
+            <span class="below-saved" id="f1-program-updates-saved"><i class="ti ti-circle-check"></i> Saved</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ACCOUNT OPS PANEL -->
+      <div class="ao-panel" id="ao-panel">
+        <div class="ao-card">
+          <div class="ao-title"><i class="ti ti-notebook" style="font-size:18px"></i> Account Operations notes <span class="ao-persist-badge">Persists week to week</span></div>
+          <div class="ao-subtitle">Notes saved here carry over automatically. Use the clear button to remove them.</div>
+          <textarea id="ao-notes" placeholder="Add account operations notes here…"></textarea>
+          <div class="ao-footer">
+            <button class="ao-save" id="ao-save-btn">Save notes</button>
+            <button class="ao-clear" id="ao-clear-btn">Clear</button>
+            <span class="ao-saved" id="ao-saved"><i class="ti ti-circle-check"></i> Saved</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SIDEBAR -->
+    <div class="sidebar-col" id="sidebar-col">
+      <div class="section-title">Team notes</div>
+      <div id="sidebar-notes-list"></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+/* ── CONSTANTS ── */
+const SOWS = [
+  { key:"all", label:"All",                cls:"all" },
+  { key:"F1",  label:"Haas F1 Partnership",cls:"f1",  color:"#185FA5" },
+  { key:"SL",  label:"Service Lines",      cls:"sl",  color:"#78BF26" },
+  { key:"CP",  label:"Cancer Pavilion",    cls:"cp",  color:"#6022A6" },
+  { key:"CO",  label:"Strategic Comms",    cls:"co",  color:"#0F766E" },
+  { key:"BR",  label:"Brand Campaign",     cls:"br",  color:"#C2410C" },
+  { key:"AO",  label:"Strategic Counsel",  cls:"ao",  color:"#4C576E" },
+  { key:"NC",  label:"No Campaign",        cls:"nc",  color:"#9ca3af" },
+];
+const STATUS_LIST = [
+  { key:"all",                 label:"All statuses",        cls:"s-all" },
+  { key:"In Progress",         label:"In progress",         cls:"s-ot"  },
+  { key:"On Hold",             label:"On hold",             cls:"s-oh"  },
+  { key:"Not Started",         label:"Not started",         cls:"s-ns"  },
+  { key:"Complete",            label:"Complete",            cls:"s-co"  },
+  { key:"Forecasted",          label:"Forecasted",          cls:"s-fc"  },
+  { key:"Expenses Only",       label:"Expenses only",       cls:"s-eo"  },
+  { key:"New / In Estimating", label:"New / in estimating", cls:"s-nie" },
+  { key:"Opportunity",         label:"Opportunity",         cls:"s-op"  },
+];
+const STATUS_BADGE = {
+  "In Progress":"b-ot","Complete":"b-co","On Hold":"b-oh",
+  "Not Started":"b-ns","Forecasted":"b-fc","Pitching":"b-pt",
+  "Expenses Only":"b-eo","New / In Estimating":"b-nie","Opportunity":"b-op"
+};
+const WEEKS = [
+  { key:"all", label:"All weeks"    },
+  { key:"w1",  label:"Week of 5/18" },
+  { key:"w2",  label:"Week of 5/25" },
+  { key:"w3",  label:"Week of 6/1"  },
+  { key:"w4",  label:"Week of 6/8"  },
+];
+
+const PROJECTS = [{"sow": "AO", "id": "25-UCMC-001", "name": "Strategic Advisory Support", "campaign": "2026 UCMC Strategic Counsel & Advisory Support", "cat": "MARCOMM", "status": "In Progress", "al": "Jared K.", "pm": "Lisa R.", "am": "\u2014", "week": "all", "dates": [{"task": "1.1 Internal Status Meetings", "start": "Nov 21", "due": "Jan 15"}, {"task": "1.2 Client Status Meetings", "start": "Nov 21", "due": "Jan 15"}, {"task": "1.3 Weekly Account Strategy Meetings", "start": "Nov 21", "due": "Jan 15"}, {"task": "1.5 Account Financial Oversight", "start": "Nov 21", "due": "Jan 15"}, {"task": "1.6 Ongoing Campaign Strategy + Management", "start": "Nov 21", "due": "Jan 15"}, {"task": "1.7 Ongoing Project Management", "start": "Nov 21", "due": "Jan 15"}, {"task": "1.22 Board Meeting Prep (April)", "start": "Apr 15", "due": "Apr 15"}, {"task": "1.23 OBGYN Display Banner Updates", "start": "Apr 23", "due": "Apr 27"}, {"task": "1.24 Roles & Responsibilities Meeting", "start": "Apr 27", "due": "Apr 27"}]}, {"sow": "NC", "id": "25-UCMC-014", "name": "Communications (AOR) - Expenses", "campaign": "", "cat": "OOP", "status": "Expenses Only", "al": "Nicole J.", "pm": "Lisa R.", "am": "\u2014", "week": "all", "dates": [{"task": "1 OOP Expenses", "start": "Aug 7", "due": "Jun 28"}]}, {"sow": "BR", "id": "25-UCMC-016", "name": "Brand Campaign - Concepting", "campaign": "2026 UCMC Brand Campaign", "cat": "MARCOMM", "status": "In Progress", "al": "Jared K.", "pm": "Lisa R.", "am": "\u2014", "week": "all", "dates": [{"task": "4.1 Draft Creative Strategy Brief", "start": "Oct 29", "due": "Oct 31"}, {"task": "4.9 MILESTONE: Creative Brief CLIENT PRESENTATION", "start": "Nov 18", "due": "Nov 18"}, {"task": "5.1 Tissue Work Session", "start": "Nov 21", "due": "Dec 4"}, {"task": "5.2 V1 Concepting", "start": "Dec 4", "due": "Dec 17"}, {"task": "5.3 V2 Concepting", "start": "Dec 18", "due": "Jan 6"}, {"task": "5.4 V3 Concepting (Pre-Socializing)", "start": "Jan 7", "due": "Jan 27"}, {"task": "5.5 V4 Concepting (Post Socializing)", "start": "Jan 27", "due": "Feb 24"}]}, {"sow": "BR", "id": "25-UCMC-018", "name": "Brand Campaign - Forecasted Deliverables", "campaign": "2026 UCMC Brand Campaign", "cat": "MARCOMM", "status": "In Progress", "al": "Jared K.", "pm": "Lisa R.", "am": "\u2014", "week": "w4", "dates": [{"task": "4.1 R1 Creative Development", "start": "Jun 12", "due": "Jul 10"}, {"task": "4.1.7 MILESTONE: R1 Creative Development CLIENT PRESENTATION", "start": "Jul 9", "due": "Jul 9"}, {"task": "4.2 R2 Creative Development", "start": "Jul 13", "due": "Jul 23"}, {"task": "4.3 R3 Creative Development", "start": "Jul 24", "due": "Aug 5"}, {"task": "5.2 VIDEO DEVELOPMENT", "start": "Jun 12", "due": "Jul 29"}, {"task": "6.2 STILLS SELECT & RETOUCHING", "start": "Jun 15", "due": "Jul 20"}]}, {"sow": "BR", "id": "25-UCMC-019", "name": "Brand Campaign - Video/Photoshoot", "campaign": "2026 UCMC Brand Campaign", "cat": "MARKETING", "status": "In Progress", "al": "Jared K.", "pm": "Sara H.", "am": "\u2014", "week": "w1", "dates": [{"task": "2.1 R1 Scripts/Storyboards Development", "start": "Apr 1", "due": "Apr 8"}, {"task": "2.3.3 MILESTONE: R3 Scripts/Storyboards + Cutdowns CLIENT PRESENTATION", "start": "Apr 20", "due": "Apr 20"}, {"task": "2.4 R4 Script Cutdowns Development", "start": "Apr 22", "due": "Apr 27"}, {"task": "3.1 Bidding & Treatments", "start": "Apr 13", "due": "Apr 30"}, {"task": "3.2 Shoot Prep", "start": "May 1", "due": "Jun 3"}, {"task": "3.2.2.3 MILESTONE: Casting & Locations Specs CLIENT PRESENTATION", "start": "May 6", "due": "May 6"}, {"task": "3.2.2.9 MILESTONE: Casting & Location Selects CLIENT PRESENTATION", "start": "May 21", "due": "May 21"}, {"task": "3.2.3.3 MILESTONE: Wardrobe & Props Specs CLIENT PRESENTATION", "start": "May 13", "due": "May 13"}, {"task": "4.2 Shoot Days", "start": "Jun 4", "due": "Jun 8"}, {"task": "5.3 MILESTONE: Radio Recording Session", "start": "Jul 15", "due": "Jul 15"}]}, {"sow": "AO", "id": "25-UCMC-022", "name": "OOP Expenses", "campaign": "2026 UCMC Strategic Counsel & Advisory Support", "cat": "OOP", "status": "Expenses Only", "al": "Jared K.", "pm": "Lisa R.", "am": "\u2014", "week": "all", "dates": [{"task": "1.1 Airfare", "start": "Dec 17", "due": "Jul 24"}, {"task": "1.2 Hotel", "start": "Dec 17", "due": "Jul 24"}, {"task": "1.3 Ground Transportation", "start": "Dec 17", "due": "Jul 24"}, {"task": "1.4 Mileage", "start": "Dec 17", "due": "Jul 24"}, {"task": "1.5 Meals", "start": "Dec 17", "due": "Jul 24"}]}, {"sow": "F1", "id": "26-UCMC-024", "name": "Haas F1 Partnership - Overall Strategic Support", "campaign": "2026 UCMC Haas F1 Partnership", "cat": "MARCOMM", "status": "In Progress", "al": "Jared K.", "pm": "Lisa R.", "am": "\u2014", "week": "all", "dates": [{"task": "9 F1 Onboarding", "start": "Apr 8", "due": "Apr 8"}, {"task": "10 High-Level Creative Ideas", "start": "Apr 9", "due": "Apr 10"}, {"task": "11 Miami Race Content Wish List", "start": "Apr 17", "due": "Apr 17"}, {"task": "12 Call w/Steve Nash", "start": "Apr 30", "due": "Apr 30"}]}, {"sow": "CP", "id": "26-UCMC-029", "name": "Cancer Pavilion - Account Management & Advisory", "campaign": "2026 UCMC Cancer Center Pavilion", "cat": "MARCOMM", "status": "In Progress", "al": "Amani M.", "pm": "Sara H.", "am": "\u2014", "week": "all", "dates": [{"task": "1.1 Internal Meetings + Communications", "start": "Apr 1", "due": "Jun 30"}, {"task": "1.2 Client Meetings + Communications", "start": "Apr 1", "due": "Jun 30"}, {"task": "1.3 Ongoing Planning Strategy + Management", "start": "Apr 1", "due": "Jun 30"}, {"task": "1.5 Campaign Financial Oversight", "start": "Apr 1", "due": "Jun 30"}, {"task": "2.1 Develop Program Onboarding Deck", "start": "May 12", "due": "May 13"}, {"task": "2.2 MILESTONE: Program Onboarding Deck KO", "start": "May 8", "due": "May 8"}]}, {"sow": "CO", "id": "26-UCMC-032", "name": "Strategic Communications - May", "campaign": "2025 UCMC Strategic Communications Planning and Ongoing Support", "cat": "COMMS", "status": "In Progress", "al": "Amani M.", "pm": "Lisa R.", "am": "\u2014", "week": "w1", "dates": [{"task": "2.1 Reputation Amplification", "start": "May 1", "due": "May 29"}, {"task": "3.1 Crisis Management", "start": "May 1", "due": "May 29"}, {"task": "4.2 5/1 Internal Checkin", "start": "May 1", "due": "May 1"}, {"task": "4.3 5/7 Internal Checkin", "start": "May 7", "due": "May 7"}, {"task": "4.4 5/14 Internal Checkin", "start": "May 14", "due": "May 14"}, {"task": "4.5 5/21 Internal Checkin", "start": "May 21", "due": "May 21"}, {"task": "4.6 5/28 Internal Checkin", "start": "May 28", "due": "May 28"}, {"task": "5.1 5/6 Weekly Client Status Meeting", "start": "May 6", "due": "May 6"}, {"task": "5.2 5/13 Weekly Client Status Meeting", "start": "May 13", "due": "May 13"}, {"task": "5.3 5/20 Weekly Client Status Meeting", "start": "May 20", "due": "May 20"}, {"task": "5.4 5/27 Weekly Client Status Meeting", "start": "May 27", "due": "May 27"}]}, {"sow": "CO", "id": "26-UCMC-033", "name": "Strategic Communications - June", "campaign": "2025 UCMC Strategic Communications Planning and Ongoing Support", "cat": "COMMS", "status": "New / In Estimating", "al": "Nicole J.", "pm": "Sara H.", "am": "\u2014", "week": "w3", "dates": [{"task": "2.1 Executive Visibility", "start": "Jun 1", "due": "Jun 30"}, {"task": "2.2 Earned Media", "start": "Jun 1", "due": "Jun 30"}, {"task": "2.3 Crisis & Issues Management", "start": "Jun 1", "due": "Jun 30"}, {"task": "4.1 6/3 Weekly Client Status Meeting", "start": "Jun 3", "due": "Jun 3"}, {"task": "4.2 6/10 Weekly Client Status Meeting", "start": "Jun 10", "due": "Jun 10"}, {"task": "4.3 6/17 Weekly Client Status Meeting", "start": "Jun 17", "due": "Jun 17"}, {"task": "4.4 6/24 Weekly Client Status Meeting", "start": "Jun 24", "due": "Jun 24"}]}, {"sow": "SL", "id": "26-UCMC-034", "name": "Service Lines Campaign - Planning", "campaign": "2026 UCMC Service Lines Campaigns", "cat": "MARKETING", "status": "In Progress", "al": "Jared K.", "pm": "Sara H.", "am": "\u2014", "week": "all", "dates": [{"task": "2.1 Media & DS&A Checklist Review", "start": "May 11", "due": "May 14"}, {"task": "2.2 Internal Kickoff Meeting", "start": "Apr 1", "due": "Apr 1"}, {"task": "2.3 Immersion Prep", "start": "Apr 2", "due": "Apr 8"}, {"task": "2.4 Immersion Deck Development", "start": "Apr 2", "due": "Apr 13"}, {"task": "2.6 Immersion Deck Walkthrough", "start": "Apr 17", "due": "Apr 17"}, {"task": "3.2 Immersion Work-session (full day)", "start": "Apr 20", "due": "Apr 20"}, {"task": "3.3 Post-Immersion Alignment", "start": "Apr 21", "due": "Apr 21"}]}, {"sow": "NC", "id": "26-UCMC-035", "name": "National Reputation Campaign - Conference Support", "campaign": "", "cat": "COMMS", "status": "In Progress", "al": "Amani M.", "pm": "Lisa R.", "am": "\u2014", "week": "all", "dates": [{"task": "2.1 UTM Tracker", "start": "Apr 23", "due": "Apr 24"}]}, {"sow": "CP", "id": "26-UCMC-036", "name": "Cancer Pavilion - Integrated Strategy", "campaign": "2026 UCMC Cancer Center Pavilion", "cat": "MARCOMM", "status": "In Progress", "al": "Amani M.", "pm": "Sara H.", "am": "\u2014", "week": "w3", "dates": [{"task": "2.2 Strategy Deck Pre Client KO", "start": "Apr 27", "due": "May 1"}, {"task": "2.3 Client Meetings", "start": "May 4", "due": "May 4"}, {"task": "2.4 R1 Integrated Engagement Strategy", "start": "Jun 1", "due": "Jun 15"}, {"task": "2.4.6 MILESTONE: R1 Engagement Strategy CLIENT PRESENTATION", "start": "Jun 10", "due": "Jun 10"}, {"task": "2.5 R2 Integrated Engagement Strategy", "start": "Jun 16", "due": "Jun 26"}, {"task": "2.6 R3 Integrated Engagement Strategy", "start": "Jun 29", "due": "Jul 6"}]}, {"sow": "CP", "id": "26-UCMC-037", "name": "Cancer Pavilion - Program Governance Meetings", "campaign": "2026 UCMC Cancer Center Pavilion", "cat": "MARCOMM", "status": "In Progress", "al": "Amani M.", "pm": "Sara H.", "am": "\u2014", "week": "all", "dates": [{"task": "2.1 Steering Committee/MarComm Meetings", "start": "Apr 13", "due": "Apr 13"}]}, {"sow": "CP", "id": "26-UCMC-038", "name": "Cancer Pavilion - Paid Media Expenses", "campaign": "2026 UCMC Cancer Center Pavilion", "cat": "OOP", "status": "Expenses Only", "al": "Amani M.", "pm": "Sara H.", "am": "\u2014", "week": "all", "dates": [{"task": "1 MEDIA EXPENSES", "start": "Apr 13", "due": "Jun 30"}]}, {"sow": "CP", "id": "26-UCMC-039", "name": "Cancer Pavilion - Paid Media Labor & Measurement", "campaign": "2026 UCMC Cancer Center Pavilion", "cat": "MARKETING", "status": "New / In Estimating", "al": "Amani M.", "pm": "Sara H.", "am": "\u2014", "week": "all", "dates": [{"task": "2.1 Media Buying/Placing & IO Approval", "start": "Apr 13", "due": "Apr 13"}, {"task": "2.2 Weekly Pacing Monitoring + Monthly Optimization", "start": "Apr 13", "due": "Apr 13"}, {"task": "2.3 Media Reconciliation + Billing Management", "start": "Apr 14", "due": "Apr 14"}, {"task": "2.4 Reporting & Insights", "start": "Apr 15", "due": "Apr 15"}]}, {"sow": "CP", "id": "26-UCMC-040", "name": "Cancer Pavilion - SEO Strategy & Optimization", "campaign": "2026 UCMC Cancer Center Pavilion", "cat": "N/A", "status": "In Progress", "al": "Amani M.", "pm": "Sara H.", "am": "\u2014", "week": "w1", "dates": [{"task": "2.1 Meltwater Social Listening Pull", "start": "May 18", "due": "May 19"}, {"task": "2.2 SEO KO", "start": "May 20", "due": "May 20"}, {"task": "2.3 SEO Audit, Strategy & Content Recommendations", "start": "May 21", "due": "Jun 1"}, {"task": "2.4 Ongoing SEO Optimization", "start": "Jun 2", "due": "Aug 31"}]}, {"sow": "CP", "id": "26-UCMC-041", "name": "Cancer Pavilion - Earned Media", "campaign": "2026 UCMC Cancer Center Pavilion", "cat": "COMMS", "status": "In Progress", "al": "Amani M.", "pm": "Sara H.", "am": "\u2014", "week": "all", "dates": [{"task": "2.1 Reputation Amplification", "start": "Apr 27", "due": "Jun 30"}]}, {"sow": "CP", "id": "26-UCMC-042", "name": "Cancer Pavilion - Event Planning", "campaign": "2026 UCMC Cancer Center Pavilion", "cat": "N/A", "status": "In Progress", "al": "Amani M.", "pm": "Sara H.", "am": "\u2014", "week": "all", "dates": [{"task": "2.1 Event Strategy and Program Plan", "start": "Apr 29", "due": "May 6"}, {"task": "2.1.4 MILESTONE: Event Strategy and Program Plan CLIENT DELIVERY", "start": "May 6", "due": "May 6"}, {"task": "2.2 Event Planning & Coordination", "start": "Apr 10", "due": "Apr 10"}]}, {"sow": "CP", "id": "26-UCMC-043", "name": "Cancer Pavilion - Event Travel OOP Expenses", "campaign": "2026 UCMC Cancer Center Pavilion", "cat": "OOP", "status": "Expenses Only", "al": "Amani M.", "pm": "Sara H.", "am": "\u2014", "week": "all", "dates": [{"task": "1 Travel Expenses", "start": "Apr 27", "due": "Jun 30"}]}, {"sow": "CP", "id": "26-UCMC-044", "name": "Cancer Pavilion - Community Engagement", "campaign": "2026 UCMC Cancer Center Pavilion", "cat": "COMMS", "status": "In Progress", "al": "Amani M.", "pm": "Sara H.", "am": "\u2014", "week": "all", "dates": [{"task": "2.1 Partnership Strategy & Campaign Integration", "start": "Apr 27", "due": "Jun 30"}]}, {"sow": "CP", "id": "26-UCMC-047", "name": "Cancer Pavilion - Creative Concepting", "campaign": "2026 UCMC Cancer Center Pavilion", "cat": "MARKETING", "status": "In Progress", "al": "Amani M.", "pm": "Sara H.", "am": "\u2014", "week": "w1", "dates": [{"task": "2.1 Start Drafting Creative Brief", "start": "May 8", "due": "May 12"}, {"task": "2.4 MILESTONE: Creative Brief CLIENT PRESENTATION", "start": "May 15", "due": "May 15"}, {"task": "2.7 Internal Kickoff Meeting", "start": "May 18", "due": "May 18"}, {"task": "3.1.6 MILESTONE: R1 Concepts CLIENT PRESENTATION", "start": "Jun 2", "due": "Jun 2"}, {"task": "3.2.7 MILESTONE: R2 Concepts CLIENT PRESENTATION", "start": "Jun 9", "due": "Jun 9"}, {"task": "3.3.7 MILESTONE: R3 Share Final Concepts with Client", "start": "Jun 16", "due": "Jun 16"}]}, {"sow": "CP", "id": "26-UCMC-049", "name": "Cancer Pavilion - Creative Development & Production (Forecast)", "campaign": "2026 UCMC Cancer Center Pavilion", "cat": "MARKETING", "status": "New / In Estimating", "al": "Amani M.", "pm": "Sara H.", "am": "\u2014", "week": "w3", "dates": [{"task": "3.4 Creative Direction Oversight", "start": "Jun 1", "due": "Oct 28"}, {"task": "4.1.6 MILESTONE: R1 Creative Development CLIENT PRESENTATION", "start": "Jul 7", "due": "Jul 7"}, {"task": "4.2.6 MILESTONE: R2 Creative Development CLIENT PRESENTATION", "start": "Jul 13", "due": "Jul 13"}, {"task": "4.3.5 MILESTONE: R3 Creative Development CLIENT DELIVERY", "start": "Jul 21", "due": "Jul 21"}]}, {"sow": "CP", "id": "26-UCMC-050", "name": "Cancer Pavilion - Landing Page Design", "campaign": "2026 UCMC Cancer Center Pavilion", "cat": "MARKETING", "status": "In Progress", "al": "Jared K.", "pm": "Lisa R.", "am": "\u2014", "week": "w1", "dates": [{"task": "2.1 Internal Prep + Client Meetings", "start": "May 20", "due": "Jun 5"}, {"task": "2.2 Internal Project Kickoff", "start": "Jun 17", "due": "Jun 17"}, {"task": "3.1.4 MILESTONE: R1 Creative Development CLIENT DELIVERY", "start": "Jun 25", "due": "Jun 25"}, {"task": "3.2.5 MILESTONE: R2 Creative Development CLIENT DELIVERY", "start": "Jul 2", "due": "Jul 2"}, {"task": "3.3.5 MILESTONE: R3 Creative Development CLIENT DELIVERY", "start": "Jul 9", "due": "Jul 9"}]}, {"sow": "NC", "id": "Oppty-863", "name": "Moonshot - Medicare Campaign", "campaign": "", "cat": "MARKETING", "status": "Opportunity", "al": "Jared K.", "pm": "Lisa R.", "am": "\u2014", "week": "all", "dates": [{"task": "1.6.3 MILESTONE: R1 Moonshots CLIENT PRESENTATION", "start": "Mar 27", "due": "Mar 27"}]}]
+
+/* ── STATE ── */
+let activeSow = "all", activeStatus = "all", activeWeek = "all", activeAL = "all", searchVal = "";
+/* load persisted notes from localStorage */
+const userNotes = (() => { try { return JSON.parse(localStorage.getItem("ucm-team-notes") || "{}"); } catch(e) { return {}; } })();
+
+/* ── LOCALSTORAGE ── */
+const LS = {
+  get: k => { try { return localStorage.getItem("ucm-dash-" + k) || ""; } catch(e) { return ""; } },
+  set: (k, v) => { try { localStorage.setItem("ucm-dash-" + k, v); } catch(e) {} },
+  del: k => { try { localStorage.removeItem("ucm-dash-" + k); } catch(e) {} },
+  getJSON: (k, def) => { try { const v = localStorage.getItem("ucm-dash-" + k); return v ? JSON.parse(v) : def; } catch(e) { return def; } },
+  setJSON: (k, v) => { try { localStorage.setItem("ucm-dash-" + k, JSON.stringify(v)); } catch(e) {} },
+};
+
+/* Removed team members: { "proj-id": ["al", "pm", "am"] } */
+let removedMembers = LS.getJSON("removed-members", {});
+
+/* ── HELPERS ── */
+function getSow(key) { return SOWS.find(s => s.key === key) || { color:"#4C576E", label:key }; }
+function safeId(id) { return id.replace(/[^a-z0-9]/gi, "_"); }
+function initials(n) { if (!n || n === "—") return "?"; return n.split(" ").map(p => p[0]).join("").slice(0,2).toUpperCase(); }
+
+/* ── METRICS ── */
+function renderMetrics() {
+  const total   = PROJECTS.length;
+  const onTrack = PROJECTS.filter(p => p.status === "In Progress").length;
+  const onHold  = PROJECTS.filter(p => p.status === "On Hold").length;
+  const savedScope = LS.get("header-scope");
+  document.getElementById("metrics").innerHTML = `
+    <div class="metric"><div class="metric-val">${total}</div><div class="metric-label">Projects</div></div>
+    <div class="metric"><div class="metric-val green">${onTrack}</div><div class="metric-label">In progress</div></div>
+    <div class="metric"><div class="metric-val amber">${onHold}</div><div class="metric-label">On hold</div></div>
+    <div class="metric">
+      <input class="metric-val scope-edit" id="header-scope" type="text" value="${savedScope}" placeholder="$0.0M" title="Click to edit total scope">
+      <div class="metric-label">Total scope</div>
+    </div>`;
+  document.getElementById("header-scope").addEventListener("change", e => { LS.set("header-scope", e.target.value); });
+  document.getElementById("header-scope").addEventListener("click", e => e.stopPropagation());
+}
+
+/* ── FILTERS ── */
+function renderFilters() {
+  const row1 = document.getElementById("filter-sow-status");
+  let html = SOWS.filter(s => s.key !== "NC").map(s => `<button class="sow-btn ${s.cls==="all"?"active all":s.cls}" data-sow="${s.key}" data-cls="${s.cls}">${s.label}</button>`).join("");
+  html += `<div class="divider"></div>`;
+  html += STATUS_LIST.map(s => `<button class="status-chip ${s.cls==="s-all"?"active s-all":s.cls}" data-status="${s.key}" data-cls="${s.cls}">${s.label}</button>`).join("");
+  html += `<div class="search-wrap"><i class="ti ti-search"></i><input type="text" id="search-input" placeholder="Search projects…"></div>`;
+  row1.innerHTML = html;
+  row1.querySelectorAll(".sow-btn").forEach(btn => { btn.addEventListener("click", () => { activeSow = btn.dataset.sow; row1.querySelectorAll(".sow-btn").forEach(b => { b.className = "sow-btn "+b.dataset.cls; }); btn.classList.add("active", btn.dataset.cls); render(); }); });
+  row1.querySelectorAll(".status-chip").forEach(btn => { btn.addEventListener("click", () => { activeStatus = btn.dataset.status; row1.querySelectorAll(".status-chip").forEach(b => { b.className = "status-chip "+b.dataset.cls; }); btn.classList.add("active", btn.dataset.cls); render(); }); });
+  document.getElementById("search-input").addEventListener("input", e => { searchVal = e.target.value.toLowerCase(); render(); });
+
+  /* ── Calendar date picker ── */
+  const row2 = document.getElementById("filter-week");
+  row2.innerHTML = `
+    <span style="font-size:12px;font-weight:700;color:var(--text-2);">Daily view</span>
+    <input type="date" id="cal-input">
+    <button class="cal-btn" id="cal-btn" onclick="document.getElementById('cal-input').showPicker()">
+      <i class="ti ti-calendar"></i>
+      <span id="cal-label">All dates</span>
+    </button>
+    <button class="cal-btn" id="cal-clear" style="padding:5px 8px;font-size:11px;display:none" onclick="clearCalendar()">
+      <i class="ti ti-x"></i>
+    </button>`;
+
+  document.getElementById("cal-input").addEventListener("change", e => {
+    const val = e.target.value; // yyyy-mm-dd
+    if (!val) { clearCalendar(); return; }
+    const d = new Date(val + "T00:00:00");
+    // Map to week slot based on Mon-Sun boundaries
+    const weekRanges = [
+      { key:"w1", start: new Date("2026-05-18"), end: new Date("2026-05-24") },
+      { key:"w2", start: new Date("2026-05-25"), end: new Date("2026-05-31") },
+      { key:"w3", start: new Date("2026-06-01"), end: new Date("2026-06-07") },
+      { key:"w4", start: new Date("2026-06-08"), end: new Date("2026-06-14") },
+    ];
+    const match = weekRanges.find(w => d >= w.start && d <= w.end);
+    activeWeek = match ? match.key : "all";
+    const fmt = d.toLocaleDateString("en-US", { month:"short", day:"numeric", year:"numeric" });
+    document.getElementById("cal-label").textContent = fmt;
+    document.getElementById("cal-btn").classList.add("active");
+    document.getElementById("cal-clear").style.display = "flex";
+    render();
+  });
+
+  /* ── Account Lead filter ── */
+  const row3 = document.getElementById("filter-al");
+  const alOptions = ["all", "Jared", "Amani", "Nicole"];
+  row3.innerHTML = `<span style="font-size:12px;font-weight:700;color:var(--text-2);">Account lead</span>` +
+    alOptions.map(a => `<button class="al-chip ${a==="all"?"active":""}" data-al="${a}">${a==="all"?"All":a}</button>`).join("");
+  row3.querySelectorAll(".al-chip").forEach(btn => {
+    btn.addEventListener("click", () => {
+      activeAL = btn.dataset.al;
+      row3.querySelectorAll(".al-chip").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      render();
+    });
+  });
+}
+
+/* ── PERSISTENT PANELS ── */
+function wireBelow(textareaId, saveId, savedId, lsKey) {
+  const ta = document.getElementById(textareaId);
+  if (!ta) return;
+  ta.value = LS.get(lsKey);
+  document.getElementById(saveId).addEventListener("click", () => {
+    LS.set(lsKey, ta.value);
+    const el = document.getElementById(savedId);
+    el.style.display = "flex"; setTimeout(() => { el.style.display = "none"; }, 2000);
+  });
+  ta.addEventListener("click", e => e.stopPropagation());
+}
+function initPanels() {
+  wireBelow("f1-program-updates",  "f1-program-updates-save",  "f1-program-updates-saved",  "f1-program-updates");
+  // comms panels now handled by sub-filter system
+  const aoTa = document.getElementById("ao-notes");
+  aoTa.value = LS.get("ao-notes");
+  aoTa.addEventListener("click", e => e.stopPropagation());
+  document.getElementById("ao-save-btn").addEventListener("click", () => {
+    LS.set("ao-notes", aoTa.value);
+    const el = document.getElementById("ao-saved");
+    el.style.display = "flex"; setTimeout(() => { el.style.display = "none"; }, 2000);
+  });
+  document.getElementById("ao-clear-btn").addEventListener("click", () => {
+    if (confirm("Clear all Account Operations notes? This cannot be undone.")) { aoTa.value = ""; LS.del("ao-notes"); }
+  });
+}
+
+/* ── SIDEBAR ── */
+function renderSidebar() {
+  const sidebar   = document.getElementById("sidebar-col");
+  const notesList = document.getElementById("sidebar-notes-list");
+  const show = activeSow === "CO";
+  sidebar.classList.toggle("visible", show);
+  if (!show) return;
+  const sowMeta   = getSow(activeSow);
+  const withNotes = PROJECTS.filter(p => p.sow === activeSow && userNotes[p.id] && userNotes[p.id].trim());
+  if (!withNotes.length) {
+    notesList.innerHTML = `<p class="sidebar-empty">No team notes saved yet.<br><span style="font-size:11px">Expand a project and save a note — it will appear here.</span></p>`;
+    return;
+  }
+  notesList.innerHTML = withNotes.map(p => `
+    <div class="sidebar-note-card" style="border-left-color:${sowMeta.color}">
+      <div class="sidebar-note-proj" style="color:${sowMeta.color}">${p.name}</div>
+      <div class="sidebar-note-text">${userNotes[p.id]}</div>
+    </div>`).join("");
+}
+
+/* ── TEAM MEMBER HTML ── */
+function teamMemberHTML(projId, role, name) {
+  if (!name || name === "—") return "";
+  const removed = removedMembers[projId] || [];
+  if (removed.includes(role)) return "";
+  return `<div class="team-member" id="tm-${safeId(projId)}-${role}">
+    <span class="person-role" style="min-width:22px">${role.toUpperCase()}</span>
+    <div class="avatar">${initials(name)}</div>
+    <span style="font-size:12px;color:var(--text)">${name}</span>
+    <button class="team-remove" data-proj="${projId}" data-role="${role}" title="Remove ${name}"><i class="ti ti-x"></i></button>
+  </div>`;
+}
+
+function hasRemovedMembers(projId) {
+  return (removedMembers[projId] || []).length > 0;
+}
+
+/* ── RENDER ── */
+function render() {
+  const isAO    = activeSow === "AO";
+  const isComms = activeSow === "CO";
+  const isF1    = activeSow === "F1";
+  document.getElementById("ao-panel").classList.toggle("visible", isAO);
+  document.getElementById("comms-panels").classList.toggle("visible", isComms);
+  if (isComms) { setTimeout(() => { initCommsSubFilters(); if(activeCommsSub) renderCommsSub(activeCommsSub); }, 0); }
+  document.getElementById("f1-panels").classList.toggle("visible", isF1);
+
+  const filtered = PROJECTS.filter(p => {
+    const sowOk    = activeSow === "all" || p.sow === activeSow;
+    const alOk     = activeAL === "all" || (p.al || "").toLowerCase().includes(activeAL.toLowerCase());
+    const statusOk = activeStatus === "all" || p.status === activeStatus;
+    const weekOk   = activeWeek === "all" || p.week === activeWeek;
+    const srchOk   = !searchVal || p.name.toLowerCase().includes(searchVal) || p.id.toLowerCase().includes(searchVal) || (p.notes||"").toLowerCase().includes(searchVal);
+    return sowOk && alOk && statusOk && weekOk && srchOk;
+  });
+
+  const grouped = {};
+  SOWS.filter(s => s.key !== "all").forEach(s => {
+    const list = filtered.filter(p => p.sow === s.key);
+    if (list.length) grouped[s.key] = list;
+  });
+
+  const listEl = document.getElementById("project-list");
+  if (isAO || !Object.keys(grouped).length) {
+    listEl.innerHTML = isAO ? "" : `<div class="empty">No projects match your current filters.</div>`;
+    renderSidebar(); return;
+  }
+
+  listEl.innerHTML = Object.entries(grouped).map(([sowKey, list]) => {
+    const m = getSow(sowKey);
+    const statCounts = [
+      { key:"In Progress",    color:"#166534", icon:"ti-circle-check" },
+      { key:"Complete",    color:"#1e40af", icon:"ti-check"        },
+      { key:"On Hold",     color:"#854d0e", icon:"ti-pause"        },
+      { key:"Forecasted",  color:"#9a3412", icon:"ti-trending-up"  },
+      { key:"Not Started", color:"#9ca3af", icon:"ti-circle"       },
+      { key:"Pitching",    color:"#5b21b6", icon:"ti-chart-line"   },
+    ].map(st => { const n = list.filter(p => p.status === st.key).length; return n ? `<span class="sow-stat" style="color:${st.color}"><i class="ti ${st.icon}"></i> ${n} ${st.key.toLowerCase()}</span>` : ""; }).filter(Boolean).join("");
+
+    // SOW scope editable input
+    const scopeKey = "sow-scope-" + sowKey;
+    const scopeVal = LS.get(scopeKey);
+
+    const rows = list.map(p => {
+      const sid       = safeId(p.id);
+      const savedNote = userNotes[p.id] || "";
+      const removed   = removedMembers[p.id] || [];
+      const showRestore = removed.length > 0;
+      const teamHTML = [
+        teamMemberHTML(p.id, "al", p.al),
+        teamMemberHTML(p.id, "pm", p.pm),
+        teamMemberHTML(p.id, "am", p.am),
+      ].filter(Boolean).join("");
+
+      return `
+      <div class="proj-row" style="border-left-color:${m.color}" data-id="${p.id}">
+        <div class="proj-top">
+          <span class="proj-id">${p.id}</span>
+          <span class="proj-name">${p.name}</span>
+          <div class="proj-right">
+            <div class="proj-badges"><span class="badge ${STATUS_BADGE[p.status]||"b-ns"}">${p.status}</span></div>
+            ${p.al && p.al !== "—" ? `<div class="person"><span class="person-role">AL</span><div class="avatar">${initials(p.al)}</div><span class="person-name">${p.al}</span></div>` : ""}
+            ${p.pm !== "—" ? `<div class="person"><span class="person-role">PM</span><div class="avatar">${initials(p.pm)}</div><span class="person-name">${p.pm}</span></div>` : ""}
+            <i class="ti ti-chevron-down chevron"></i>
+          </div>
+        </div>
+      </div>
+      <div class="expand-detail" id="detail-${sid}">
+
+        ${p.dates && p.dates.length ? `<div class="detail-block"><div class="detail-label">Upcoming dates</div>${p.dates.map(d=>`<div class="date-item"><i class="ti ti-calendar"></i><div style="line-height:1.5"><strong style="font-size:11px">${d.task}</strong><br><span style="font-size:11px;color:var(--text-2)">Start: ${d.start}&nbsp;&nbsp;&rarr;&nbsp;&nbsp;Due: ${d.due}</span></div></div>`).join("")}</div>` : ""}
+        <div class="notes-block" style="flex-basis:100%">
+          <div class="detail-label" style="margin-bottom:6px">Team notes</div>
+          <textarea id="note-${sid}" placeholder="Add internal notes for this project…">${savedNote}</textarea>
+          <div class="notes-footer">
+            <button class="notes-save" data-proj="${p.id}" data-sid="${sid}">Save note</button>
+            <span class="notes-saved" id="saved-${sid}"><i class="ti ti-circle-check"></i> Saved</span>
+          </div>
+        </div>
+      </div>`;
+    }).join("");
+
+    return `<div class="sow-section${sowKey==="NC"?" nc-section":""}">
+      <div class="sow-header">
+        <div class="sow-header-left">
+          <div class="sow-dot" style="background:${m.color}"></div>
+          <span class="sow-name">${m.label}</span>
+          <span class="sow-count">&nbsp;${list.length} project${list.length!==1?"s":""}</span>
+          <div class="sow-stats">${statCounts}</div>
+        </div>
+        <div class="sow-scope-wrap">
+          <span class="sow-scope-label">Scope</span>
+          <input class="sow-scope-input" data-key="${scopeKey}" type="text" value="${scopeVal}" placeholder="$0">
+        </div>
+      </div>
+      <div class="sow-body">${rows}</div>
+    </div>`;
+  }).join("");
+
+  /* SOW scope inputs */
+  listEl.querySelectorAll(".sow-scope-input").forEach(inp => {
+    inp.addEventListener("click", e => e.stopPropagation());
+    inp.addEventListener("change", () => { LS.set(inp.dataset.key, inp.value); });
+  });
+
+  /* Row click → expand */
+  listEl.querySelectorAll(".proj-row").forEach(row => {
+    row.addEventListener("click", () => {
+      const sid    = safeId(row.dataset.id);
+      const detail = document.getElementById("detail-" + sid);
+      const chev   = row.querySelector(".chevron");
+      if (!detail) return;
+      const open = detail.classList.toggle("show");
+      if (chev) chev.classList.toggle("open", open);
+    });
+  });
+
+  /* Save notes */
+  listEl.querySelectorAll(".notes-save").forEach(btn => {
+    btn.addEventListener("click", e => {
+      e.stopPropagation();
+      const ta    = document.getElementById("note-" + btn.dataset.sid);
+      const saved = document.getElementById("saved-" + btn.dataset.sid);
+      if (ta) { userNotes[btn.dataset.proj] = ta.value; try { localStorage.setItem("ucm-team-notes", JSON.stringify(userNotes)); } catch(e) {} }
+      if (saved) { saved.style.display = "flex"; setTimeout(() => { saved.style.display = "none"; }, 2000); }
+      renderSidebar();
+    });
+  });
+
+  /* Remove team member */
+  listEl.querySelectorAll(".team-remove").forEach(btn => {
+    btn.addEventListener("click", e => {
+      e.stopPropagation();
+      const projId = btn.dataset.proj;
+      const role   = btn.dataset.role;
+      if (!removedMembers[projId]) removedMembers[projId] = [];
+      if (!removedMembers[projId].includes(role)) removedMembers[projId].push(role);
+      LS.setJSON("removed-members", removedMembers);
+      // Re-render just the team block
+      const sid = safeId(projId);
+      const proj = PROJECTS.find(p => p.id === projId);
+      if (!proj) return;
+      const block = document.getElementById("team-block-" + sid);
+      if (block) {
+        const newTeam = [
+          teamMemberHTML(projId, "al", proj.al),
+          teamMemberHTML(projId, "pm", proj.pm),
+          teamMemberHTML(projId, "am", proj.am),
+        ].filter(Boolean).join("");
+        block.innerHTML = newTeam || '<span style="font-size:11px;color:var(--text-3)">No team members</span>';
+        // Show restore button if not there
+        const detail = document.getElementById("detail-" + sid);
+        if (detail && !detail.querySelector(".team-restore")) {
+          const restoreBtn = document.createElement("button");
+          restoreBtn.className = "team-restore";
+          restoreBtn.dataset.proj = projId;
+          restoreBtn.textContent = "↩ Restore removed members";
+          block.parentNode.insertBefore(restoreBtn, block.nextSibling);
+          restoreBtn.addEventListener("click", e2 => { e2.stopPropagation(); handleRestore(projId); });
+        }
+      }
+    });
+  });
+
+  /* Restore team members */
+  listEl.querySelectorAll(".team-restore").forEach(btn => {
+    btn.addEventListener("click", e => { e.stopPropagation(); handleRestore(btn.dataset.proj); });
+  });
+
+  listEl.querySelectorAll("textarea").forEach(ta => { ta.addEventListener("click", e => e.stopPropagation()); });
+  renderSidebar();
+}
+
+function handleRestore(projId) {
+  delete removedMembers[projId];
+  LS.setJSON("removed-members", removedMembers);
+  render();
+}
+
+/* SOW scope inputs — fix double key prefix */
+document.addEventListener("change", e => {
+  if (e.target.classList.contains("sow-scope-input")) {
+    LS.set("sow-scope-" + e.target.closest(".sow-section")?.querySelector(".sow-dot")?.nextElementSibling?.textContent?.trim(), e.target.value);
+  }
+});
+
+
+/* ── COMMS DATA ── */
+const COMMS_DATA = {
+  "statusSheet": [
+    [
+      "WORKSTREAM",
+      "INITIATIVE",
+      "STATUS",
+      "NOTES & PRIORITIES",
+      "MILESTONES"
+    ],
+    [
+      "Reputation Amplification",
+      "Executive Visibility",
+      "In Progress",
+      "Taylor Mandrioli Chelsea Rice Evan Harris are reviewing executive placemats and inputting final info into the AI tool",
+      "4/24 - Email to Lorna"
+    ],
+    [
+      "",
+      "Earned Media",
+      "In Progress",
+      "SuperAgers\n--Evan Harris Scheduling interview with Allison\n\nResidency Burnout\n--Casey Brockett Drafting discussion guide for Dr. Arora interview",
+      "4/29 - Earned Report to Lorna & Angela\n5/6 - Earned Report to Lorna & Angela"
+    ],
+    [
+      "Crisis Management",
+      "Crisis Plan",
+      "In Progress",
+      "Lorna reviewing plan\n\nCyber addendum to be added after plan approval",
+      "4/23 - Revised crisis plan sent to Lorna"
+    ],
+    [
+      "Miscellaneous",
+      "FY27 Planning",
+      "Queued",
+      "Andy & Lorna discussing budget",
+      ""
+    ],
+    [
+      "",
+      "Upcoming Outages",
+      "",
+      "Amani OOO - 5/19-5/21\nCasey OOO - 5/20-5/22; 5/28-5/29\nTaylor OOO - 5/22-5/26\nOffice Closed (Memorial Day) - 5/25\nTaylor OOO - 6/18\nTaylor OOO - 7/16-7/17\nTaylor OOO - 8/5-8/7\nTaylor OOO - 9/3-9/4\nTaylor Mat Leave* - 10/3-1/1",
+      ""
+    ]
+  ],
+  "execVis": [
+    [
+      "Executive",
+      "Title",
+      "Position Type",
+      "BPD Assignee",
+      "Priority",
+      "Email Address",
+      "Admin",
+      "Admin Email"
+    ],
+    [
+      "Dean Mark Anderson, MD, PhD",
+      "Dean of the Biological Sciences Division & Pritzker School of Medicine",
+      "Executive Leadership",
+      "Chelsea",
+      "Priority",
+      "Mark.Anderson@uchicagomedicine.org",
+      "Mel Stephens",
+      "melissa.stephens@uchicagomedicine.org"
+    ],
+    [
+      "Tom Jackiewicz",
+      "President of UoC Health System & UCMC",
+      "Executive Leadership",
+      "Chelsea",
+      "Priority",
+      "thomas.jackiewicz@uchicagomedicine.org",
+      "Carmen Aragon",
+      "carmen.aragon@uchicagomedicine.org"
+    ],
+    [
+      "Krista Curell, RN",
+      "EVP & Chief Operating Officer UoC Health System, President of Medical Center",
+      "Executive Leadership",
+      "Taylor",
+      "Priority",
+      "Krista.Curell@uchicagomedicine.org",
+      "Cieara Nixon",
+      "cieara.nixon@uchicagomedicine.org"
+    ],
+    [
+      "Amy Ross",
+      "EVP & Chief Growth Officer, President of Medical Group",
+      "Executive Leadership",
+      "Taylor",
+      "Priority",
+      "Amy.Ross@uchicagomedicine.org",
+      "Monique Mitchelle",
+      "Monique.Mitchelle@uchicagomedicine.org"
+    ],
+    [
+      "Bess Wildman",
+      "Vice Dean for Academic Administration & Finance",
+      "Executive Leadership",
+      "Chelsea",
+      "Priority",
+      "",
+      "J Weldon",
+      "j.weldon@bsd.uchicago.edu"
+    ],
+    [
+      "Iris Romero, MD",
+      "Exec Vice Dean of the Biological Sciences Division & Pritzker School of Medicine",
+      "Executive Leadership",
+      "Chelsea",
+      "Priority",
+      "iromero@bsd.uchicago.edu",
+      "Mariko Kaonohi",
+      "mariko.kaonohi@uchicagomedicine.org"
+    ],
+    [
+      "Mike Anotoniades",
+      "President of Ingalls Memorial Hospital",
+      "Executive Leadership",
+      "Taylor",
+      "Priority",
+      "",
+      "Darlene Drwiega",
+      "darlene.drwiega@uchicagomedicine.org"
+    ],
+    [
+      "Chris Allen",
+      "EVP & Chief Financial Officer UoC Health System",
+      "Executive Leadership",
+      "Evan",
+      "Secondary",
+      "",
+      "Sam Lacy",
+      "Samantha.Penny-Harris@uchicagomedicine.org"
+    ],
+    [
+      "Tyler Bauer",
+      "SVP of Ambulatory Operations",
+      "Senior Leadership",
+      "Taylor",
+      "Priority",
+      "",
+      "Cynthia Trice-Standley",
+      "cynthia.trice-standley@uchicagomedicine.org"
+    ],
+    [
+      "Catina Latham, PhD",
+      "SVP & Chief Equity Officer",
+      "Senior Leadership",
+      "Chelsea",
+      "Priority",
+      "",
+      "Lori Samuels",
+      "lori.samuels@uchicagomedicine.org"
+    ],
+    [
+      "Emily Chase",
+      "EVP & Chief Operating Officer UCM",
+      "Senior Leadership",
+      "Evan",
+      "Secondary",
+      "",
+      "Cynthia Trice-Standley",
+      "cynthia.trice-standley@uchicagomedicine.org"
+    ],
+    [
+      "Andrew Chang",
+      "VP & Chief Marketing Officer",
+      "Senior Leadership",
+      "Taylor",
+      "Priority",
+      "Andrew.Chang@uchicagomedicine.org",
+      "Dani Myrick",
+      "danielle.myrick@uchicagomedicine.org"
+    ],
+    [
+      "Ken Nunes, MD",
+      "SVP & Chief Ambulatory Medical Officer",
+      "Senior Leadership",
+      "Taylor",
+      "Priority",
+      "knunes@bsd.uchicago.edu",
+      "Cynthia Trice-Standley",
+      "cynthia.trice-standley@uchicagomedicine.org"
+    ],
+    [
+      "Yeman Collier",
+      "SVP & Chief Information Officer",
+      "Senior Leadership",
+      "Taylor",
+      "Secondary",
+      "",
+      "Therese O'Connor",
+      "therese.oconnor@uchicagomedicine.org"
+    ],
+    [
+      "Marco Capicchioni",
+      "VP of Planning, Design, Construction & Real Estate",
+      "Senior Leadership",
+      "Evan",
+      "Secondary",
+      "",
+      "Angela Douglas",
+      "angela.douglas@uchicagomedicine.org"
+    ],
+    [
+      "Sara Haggerty",
+      "VP Budget, Financial Planning & Analysis",
+      "Senior Leadership",
+      "Evan",
+      "Secondary",
+      "",
+      "Bridget Smith",
+      "bridget.smith@uchicagomedicine.org"
+    ],
+    [
+      "Rachel Spitz",
+      "SVP & General Counsel",
+      "Senior Leadership",
+      "Chelsea",
+      "Secondary",
+      "",
+      "Ana Rios-Rico",
+      "ana.rios-rico@uchicagomedicine.org"
+    ]
+  ],
+  "taylor": {
+    "execs": [
+      {
+        "name": "Krista Curell, RN",
+        "priority": "Priority",
+        "inProgress": [
+          "Internal focus",
+          "Monthly call",
+          "(Ashley) for internal",
+          "Chicago-land (earned/ideas)"
+        ],
+        "completed": []
+      },
+      {
+        "name": "Amy Ross",
+        "priority": "Priority",
+        "inProgress": [
+          "Quarterly focus on earned",
+          "LinkedIn",
+          "Working w/ Susan",
+          "Monthly call"
+        ],
+        "completed": []
+      },
+      {
+        "name": "Tyler Bauer",
+        "priority": "Priority",
+        "inProgress": [
+          "Drafting of LinkedIn posts",
+          "Pitch themes monthly?"
+        ],
+        "completed": []
+      },
+      {
+        "name": "Andrew Chang",
+        "priority": "Priority",
+        "inProgress": [],
+        "completed": []
+      },
+      {
+        "name": "Ken Nunes, MD",
+        "priority": "Priority",
+        "inProgress": [],
+        "completed": []
+      },
+      {
+        "name": "Yeman Collier",
+        "priority": "Secondary",
+        "inProgress": [],
+        "completed": []
+      },
+      {
+        "name": "Mike Anotoniades",
+        "priority": "Priority",
+        "inProgress": [
+          "Monthly LinkedIn idea?",
+          "Monthly pitch idea?"
+        ],
+        "completed": [
+          "Beckers 16th Annual Meeting"
+        ]
+      }
+    ]
+  },
+  "chelsea": {
+    "execs": [
+      {
+        "name": "Dean Mark Anderson, MD, PhD",
+        "priority": "Priority",
+        "inProgress": [
+          "Placemats in the Executive Visibility Tool"
+        ],
+        "completed": []
+      },
+      {
+        "name": "Tom Jackiewicz",
+        "priority": "Priority",
+        "inProgress": [
+          "Placemats in the Executive Visibility Tool"
+        ],
+        "completed": [
+          "LinkedIn Post for The Atlantic Speaking Event"
+        ]
+      },
+      {
+        "name": "Bess Wildman",
+        "priority": "Priority",
+        "inProgress": [],
+        "completed": [
+          "Placemats in the Executive Visibility Tool"
+        ]
+      },
+      {
+        "name": "Iris Romero, MD",
+        "priority": "Priority",
+        "inProgress": [],
+        "completed": [
+          "Placemats in the Executive Visibility Tool"
+        ]
+      },
+      {
+        "name": "Catina Latham, PhD",
+        "priority": "Priority",
+        "inProgress": [
+          "Placemats in the Executive Visibility Tool"
+        ],
+        "completed": [
+          "LinkedIn Post celebrating Catina & Tyler",
+          "In-Person Media Training for Newsweek Interview"
+        ]
+      },
+      {
+        "name": "Rachel Spitz",
+        "priority": "Secondary",
+        "inProgress": [],
+        "completed": []
+      },
+      {
+        "name": "Tom Jackiewicz (2)",
+        "priority": "Priority",
+        "inProgress": [],
+        "completed": [
+          "Modern Healthcare Award Nomination"
+        ]
+      }
+    ]
+  },
+  "evan": {
+    "execs": [
+      {
+        "name": "Chris Allen",
+        "priority": "Secondary",
+        "inProgress": [],
+        "completed": []
+      },
+      {
+        "name": "Emily Chase",
+        "priority": "Secondary",
+        "inProgress": [],
+        "completed": []
+      },
+      {
+        "name": "Marco Capicchioni",
+        "priority": "Secondary",
+        "inProgress": [],
+        "completed": []
+      },
+      {
+        "name": "Sara Haggerty",
+        "priority": "Secondary",
+        "inProgress": [],
+        "completed": []
+      }
+    ]
+  },
+  "earnedMedia": [
+    [
+      "",
+      "BPD Pitches",
+      "Overview",
+      "",
+      "UCM Pitches",
+      "Overview",
+      "",
+      "Preferred Media Publication List",
+      "Contact Name(s) & Email Address",
+      "Preferred Freelancers",
+      "Email Address"
+    ],
+    [
+      "",
+      "Mobile Dental Clinic",
+      "Not active",
+      "",
+      "",
+      "",
+      "",
+      "Fierce Healthcare",
+      "Anastassia Gliadkovskaya / Ayla Ellison",
+      "Barbara Mantel (NBC)",
+      ""
+    ],
+    [
+      "",
+      "Colorectal Cancer",
+      "Not active",
+      "",
+      "",
+      "",
+      "",
+      "TIME",
+      "Alana Semuels (Mat Leave)",
+      "",
+      ""
+    ],
+    [
+      "",
+      "Match Day",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "Newsweek",
+      "Lauren Giella",
+      "",
+      ""
+    ],
+    [
+      "",
+      "Stroke & Dementia",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "TIME Health",
+      "Dominique Mosbergen (Mat Leave)",
+      "",
+      ""
+    ],
+    [
+      "",
+      "Trauma Desert",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "KFF Health News",
+      "Amy Maxmen / Rachana Pradhan",
+      "",
+      ""
+    ],
+    [
+      "",
+      "Residents Fill the Gap",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "Becker's",
+      "",
+      "",
+      ""
+    ],
+    [
+      "",
+      "SuperAgers",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "STAT News",
+      "Bob Herman / Angus Chen / Eric Boodman",
+      "",
+      ""
+    ],
+    [
+      "",
+      "Sci Comm",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "Axios",
+      "Tina Reed",
+      "",
+      ""
+    ],
+    [
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "New York Times",
+      "Paula Span",
+      "",
+      ""
+    ],
+    [
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "Crain's Healthcare",
+      "Katherine Davis",
+      "",
+      ""
+    ],
+    [
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "Med Page Today",
+      "",
+      "",
+      ""
+    ],
+    [
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "Becker's",
+      "",
+      "",
+      ""
+    ],
+    [
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "Axios Chicago",
+      "Carrie Shepherd",
+      "",
+      ""
+    ],
+    [
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "US News and World Report",
+      "Jamie Ducharne",
+      "",
+      ""
+    ],
+    [
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "Associated Press",
+      "Carla Johnson / Lauran Neergaard",
+      "",
+      ""
+    ],
+    [
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "Women's Health",
+      "Korin Miller",
+      "",
+      ""
+    ],
+    [
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "Healthline",
+      "Kristen B Reed / Julia Ries",
+      "",
+      ""
+    ],
+    [
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "Healthcare Brew",
+      "Cassie McGrath",
+      "",
+      ""
+    ],
+    [
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "MedPage Today",
+      "Mike Bassett",
+      "",
+      ""
+    ],
+    [
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "SELF",
+      "Erica Sloan",
+      "",
+      ""
+    ],
+    [
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "USA Today",
+      "",
+      "",
+      ""
+    ],
+    [
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "Modern Healthcare",
+      "Hayley DeSilva / Daryl Austin / Sara Moniuszko",
+      "",
+      ""
+    ],
+    [
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "The New Yorker",
+      "Daniel Gross",
+      "",
+      ""
+    ],
+    [
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "NPR",
+      "",
+      "",
+      ""
+    ],
+    [
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "Bloomberg",
+      "",
+      "",
+      ""
+    ],
+    [
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "Business Insider",
+      "",
+      "",
+      ""
+    ],
+    [
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "Fortune",
+      "",
+      "",
+      ""
+    ],
+    [
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "Wall Street Journal",
+      "",
+      "",
+      ""
+    ]
+  ],
+  "mobileDental": [
+    [
+      "Publication",
+      "Contact",
+      "BPD Owner",
+      "Status",
+      "Notes",
+      "Link"
+    ],
+    [
+      "Fierce Healthcare",
+      "Anastassia Gliadkovskaya",
+      "Casey",
+      "Sent 3/13",
+      "",
+      ""
+    ],
+    [
+      "TIME",
+      "Alana Semuels (Mat Leave)",
+      "Casey",
+      "Sent 3/27",
+      "Find a new contact",
+      "https://time.com/author/alice-park/"
+    ],
+    [
+      "Newsweek",
+      "Lauren Giella",
+      "Evan",
+      "",
+      "",
+      ""
+    ],
+    [
+      "TIME Health",
+      "Dominique Mosbergen (Mat Leave)",
+      "Evan",
+      "",
+      "Find a new contact",
+      "https://time.com/author/alice-park/"
+    ],
+    [
+      "KFF Health News",
+      "Amy Maxmen",
+      "Evan",
+      "",
+      "",
+      ""
+    ],
+    [
+      "Becker's",
+      "",
+      "Evan",
+      "",
+      "",
+      ""
+    ],
+    [
+      "Dr. BiCuspid (Dentistry Trade)",
+      "Karie Neely Andeson",
+      "Casey",
+      "Could not find email; sent LinkedIn connection",
+      "",
+      ""
+    ],
+    [
+      "Dentistry IQ",
+      "Sarah Butkovic",
+      "Casey",
+      "Sent 4/7",
+      "HIT",
+      "https://www.dentistryiq.com/newsworthy/news/55371458/"
+    ],
+    [
+      "STAT",
+      "Bob Herman",
+      "",
+      "",
+      "",
+      ""
+    ],
+    [
+      "Axios",
+      "Tina Reed",
+      "",
+      "",
+      "",
+      ""
+    ],
+    [
+      "NYT",
+      "Paula Span",
+      "Casey",
+      "Sent 4/10",
+      "",
+      ""
+    ],
+    [
+      "Crain's",
+      "Katherine Davis",
+      "",
+      "",
+      "",
+      ""
+    ],
+    [
+      "Med Page Today",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ],
+    [
+      "Becker's",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ],
+    [
+      "Axios Chicago",
+      "Carrie Shepherd",
+      "Casey",
+      "Sent 4/9",
+      "",
+      ""
+    ],
+    [
+      "US News and World Report",
+      "Jamie Ducharne",
+      "Taylor",
+      "Sent 4/14",
+      "",
+      ""
+    ]
+  ],
+  "colorectalCancer": [
+    [
+      "Contact",
+      "Publication",
+      "BPD Owner",
+      "Status",
+      "Follow-Up",
+      "Notes"
+    ],
+    [
+      "STAT News",
+      "Angus Chen",
+      "Casey",
+      "Sent 3/30",
+      "",
+      ""
+    ],
+    [
+      "Associated Press",
+      "Carla Johnson",
+      "Evan",
+      "",
+      "",
+      ""
+    ],
+    [
+      "Ayla Ellison",
+      "Fierce Healthcare",
+      "Evan",
+      "",
+      "",
+      ""
+    ],
+    [
+      "Cassie McGrath",
+      "Healthcare Brew",
+      "Casey",
+      "Sent 3/30",
+      "",
+      ""
+    ],
+    [
+      "Mike Bassett",
+      "MedPage Today",
+      "Casey",
+      "Sent 3/27",
+      "",
+      ""
+    ],
+    [
+      "Korin Miller",
+      "Women's Health",
+      "Casey",
+      "Sent 4/9",
+      "",
+      ""
+    ],
+    [
+      "Kristen B Reed",
+      "Healthline",
+      "Casey",
+      "Sent 3/30",
+      "F/U 4/9",
+      ""
+    ],
+    [
+      "Julia Ries",
+      "Healthline",
+      "Casey",
+      "Did not respond - moved to Kristen",
+      "",
+      ""
+    ],
+    [
+      "Erica Sloan",
+      "SELF",
+      "Casey",
+      "",
+      "",
+      ""
+    ],
+    [
+      "Lauran Neergaard",
+      "Associated Press",
+      "Casey",
+      "Sent 4/1",
+      "F/U 4/9",
+      ""
+    ]
+  ],
+  "strokeDementia": [
+    [
+      "Publication",
+      "Contact",
+      "Notes"
+    ],
+    [
+      "STAT",
+      "Eric Boodman",
+      ""
+    ],
+    [
+      "KFF",
+      "Rachana Pradhan",
+      ""
+    ],
+    [
+      "NeurologyLive",
+      "Marco Meglio",
+      ""
+    ],
+    [
+      "MedPage Today",
+      "Judy George",
+      ""
+    ],
+    [
+      "Associated Press",
+      "Lauran Neergaard",
+      ""
+    ],
+    [
+      "NPR",
+      "Jon Hamilton",
+      ""
+    ],
+    [
+      "Freelance",
+      "Barbara Mantel (NBC)",
+      ""
+    ],
+    [
+      "USA Today",
+      "Daryl Austin?/Sara Moniuszko",
+      ""
+    ]
+  ],
+  "traumaDesert": [
+    [
+      "Contact",
+      "Publication",
+      "Notes"
+    ],
+    [
+      "Daniel Gross",
+      "The New Yorker",
+      ""
+    ],
+    [
+      "XXX",
+      "KFF Health News",
+      "Health Equity/Access to Care Issues"
+    ],
+    [
+      "(Not Bob)",
+      "STAT News",
+      ""
+    ],
+    [
+      "",
+      "Becker's",
+      ""
+    ],
+    [
+      "",
+      "NPR",
+      ""
+    ],
+    [
+      "",
+      "TIME",
+      ""
+    ],
+    [
+      "",
+      "Bloomberg",
+      ""
+    ],
+    [
+      "",
+      "Business Insider",
+      ""
+    ],
+    [
+      "",
+      "Fortune",
+      ""
+    ],
+    [
+      "",
+      "Healthcare Brew",
+      ""
+    ],
+    [
+      "",
+      "Modern Healthcare",
+      ""
+    ],
+    [
+      "",
+      "New York Times",
+      ""
+    ],
+    [
+      "",
+      "Wall Street Journal",
+      ""
+    ]
+  ],
+  "residentsGap": [
+    [
+      "Contact",
+      "Publication",
+      "Pitch Angle",
+      "Status",
+      "Follow-Up",
+      "F/U Date",
+      "Notes"
+    ],
+    [
+      "Anil Oza",
+      "STAT",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ],
+    [
+      "Maya Goldman",
+      "Axios",
+      "First year medical students can still help address social determinants of health despite federal policy changes around health equity",
+      "Sent 5/11",
+      "Follow-up with Dr. Arora piece if no response",
+      "F/U 5/14",
+      ""
+    ],
+    [
+      "Patrick Boyle",
+      "AAMC",
+      "A new model for medical education | Med students can help get patients home from the hospital sooner",
+      "Sent 5/11",
+      "Follow-up with Dr. Arora piece if no response",
+      "F/U 5/13",
+      "Needs additional health systems also doing this for a story"
+    ],
+    [
+      "Hayley DeSilva",
+      "Modern Healthcare",
+      "Students help surface social/logistical barriers that can delay discharge, while learning how systems actually function",
+      "Sent 5/11",
+      "Follow-up with SHINE program with no response",
+      "F/U 5/13",
+      ""
+    ],
+    [
+      "Elisa Arespacochaga",
+      "AHA",
+      "",
+      "Sent 5/11",
+      "Follow-up with Dr. Arora piece if no response",
+      "F/U 5/13",
+      "Responded, will keep in mind for future stories. Knows Dr. Arora"
+    ],
+    [
+      "--- Secondary Push ---",
+      "",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ],
+    [
+      "Cassie McGrath",
+      "Healthcare Brew",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ],
+    [
+      "Felice Freyer",
+      "KFF Health News",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ],
+    [
+      "",
+      "Medscape",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ],
+    [
+      "",
+      "HealthLeaders Media",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ],
+    [
+      "",
+      "Becker's",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  ],
+  "primaryCare": [
+    [
+      "Contact",
+      "Publication",
+      "Pitch Angle"
+    ],
+    [
+      "Felice Freyer",
+      "KFF Health News",
+      "Solving the primary care shortage by building programs that celebrate"
+    ],
+    [
+      "Alexis Kayser",
+      "Newsweek",
+      "Addressing the physician shortage by building more residency programs"
+    ]
+  ],
+  "sciComm": [
+    [
+      "Contact",
+      "Publication",
+      "Notes"
+    ],
+    [
+      "Nancy Lapid",
+      "Thomson Reuters",
+      ""
+    ]
+  ],
+  "communityBenefit": [
+    [
+      "Contact",
+      "Publication",
+      "Notes"
+    ],
+    [
+      "Amanda Norris",
+      "Healthleaders Media",
+      "Cover Story (monthly)"
+    ]
+  ]
+};
+
+/* active sub-tab */
+let activeCommsSub = null;
+
+function initCommsSubFilters() {
+  const panel = document.getElementById('comms-panels');
+  if (!panel) return;
+
+  const subTabs = [
+    {key:'budget', label:'Weekly Budget Snapshot'},
+    {key:'execVis', label:'Executive Vis'},
+    {key:'taylor', label:'Taylor'},
+    {key:'chelsea', label:'Chelsea'},
+    {key:'evan', label:'Evan'},
+    {key:'earnedMedia', label:'Earned Media'},
+    {key:'mobileDental', label:'Mobile Dental Clinic'},
+    {key:'colorectalCancer', label:'Colorectal Cancer'},
+    {key:'strokeDementia', label:'Stroke & Dementia'},
+    {key:'traumaDesert', label:'Trauma Desert'},
+    {key:'residentsGap', label:'Residents Fill the Gap'},
+    {key:'primaryCare', label:'Primary Care Shortage'},
+    {key:'sciComm', label:'Sci Comm'},
+    {key:'communityBenefit', label:'Community Benefit Report'},
+  ];
+
+  panel.innerHTML = `
+    <div class="comms-status-panel">
+      <div class="comms-status-title"><i class="ti ti-table" style="font-size:14px;color:#0F766E"></i> Comms Retainer Status</div>
+      ${buildStatusTable()}
+    </div>
+    <div class="comms-sub-bar" id="comms-sub-bar">
+      ${subTabs.map(t=>`<button class="csub-btn" data-sub="${t.key}">${t.label}</button>`).join('')}
+    </div>
+    <div id="comms-sub-content"></div>
+  `;
+
+  // bind sub buttons
+  panel.querySelectorAll('.csub-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const key = btn.dataset.sub;
+      if (activeCommsSub === key) {
+        activeCommsSub = null;
+        panel.querySelectorAll('.csub-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById('comms-sub-content').innerHTML = '';
+        return;
+      }
+      activeCommsSub = key;
+      panel.querySelectorAll('.csub-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderCommsSub(key);
+    });
+  });
+  // stop textarea clicks from bubbling
+  panel.querySelectorAll('textarea,[contenteditable]').forEach(el => el.addEventListener('click', e => e.stopPropagation()));
+}
+
+function buildStatusTable() {
+  const lsKey = 'comms-status';
+  const rows = COMMS_DATA.statusSheet;
+  const header = rows[0];
+  const data = rows.slice(1);
+  const saved = lsLoadGrid(lsKey, data);
+  let html = `<div class="edit-table-wrap"><table class="edit-table"><thead><tr>${header.map(h=>`<th>${esc(h)}</th>`).join('')}</tr></thead><tbody>`;
+  saved.forEach((row, ri) => {
+    html += '<tr>';
+    row.forEach((cell, ci) => {
+      const id = `${lsKey}-${ri}-${ci}`;
+      html += `<td><textarea class="cell-edit" data-lskey="${lsKey}" data-r="${ri}" data-c="${ci}" rows="1" oninput="autoResize(this);saveCell(this)">${esc(cell)}</textarea></td>`;
+    });
+    html += '</tr>';
+  });
+  html += `</tbody></table></div>`;
+  return html;
+}
+
+function renderCommsSub(key) {
+  const el = document.getElementById('comms-sub-content');
+  if (!el) return;
+  
+  if (key === 'budget') {
+    el.innerHTML = `
+      <div class="below-card">
+        <div class="below-card-title"><i class="ti ti-chart-bar"></i> Weekly Budget Snapshot</div>
+        <textarea id="comms-budget" placeholder="Paste or enter this week's budget snapshot…" style="width:100%;font-size:13px;font-family:var(--font);color:var(--text);background:var(--bg-2);border:1.5px solid var(--border-md);border-radius:var(--r-md);padding:10px 12px;resize:vertical;min-height:90px;line-height:1.65">${LS.get('comms-budget')}</textarea>
+        <div class="below-footer">
+          <button class="below-save" onclick="LS.set('comms-budget',document.getElementById('comms-budget').value);showSaved('cb-saved')">Save</button>
+          <span class="below-saved" id="cb-saved"><i class="ti ti-circle-check"></i> Saved</span>
+        </div>
+      </div>`;
+    el.querySelectorAll('textarea,input').forEach(t => t.addEventListener('click',e=>e.stopPropagation()));
+    return;
+  }
+
+  if (key === 'execVis') {
+    const rows = COMMS_DATA.execVis;
+    el.innerHTML = buildEditableTable(rows, 'comms-execvis', 'Executive Visibility Overview');
+    bindTableEdits(el);
+    return;
+  }
+
+  if (key === 'taylor' || key === 'chelsea' || key === 'evan') {
+    el.innerHTML = buildExecCards(COMMS_DATA[key].execs, 'comms-' + key);
+    bindExecEdits(el, 'comms-' + key, COMMS_DATA[key].execs);
+    return;
+  }
+
+  const dataMap = {
+    earnedMedia:'comms-earnedmedia', mobileDental:'comms-mobiledental',
+    colorectalCancer:'comms-colorectal', strokeDementia:'comms-stroke',
+    traumaDesert:'comms-trauma', residentsGap:'comms-residents',
+    primaryCare:'comms-primarycare', sciComm:'comms-scicomm',
+    communityBenefit:'comms-community'
+  };
+  const labelMap = {
+    earnedMedia:'Earned Media Overview', mobileDental:'Mobile Dental Clinic',
+    colorectalCancer:'Colorectal Cancer', strokeDementia:'Stroke Link to Dementia Prevention',
+    traumaDesert:'Trauma Desert', residentsGap:'Year 1 Residents Fill the Gap',
+    primaryCare:'Primary Care Shortage', sciComm:'Sci Comm',
+    communityBenefit:'Community Benefit Report'
+  };
+  if (dataMap[key]) {
+    el.innerHTML = buildEditableTable(COMMS_DATA[key], dataMap[key], labelMap[key]);
+    bindTableEdits(el);
+  }
+}
+
+/* ── Table builder ── */
+function buildEditableTable(rows, lsKey, title) {
+  if (!rows || !rows.length) return '<p style="font-size:12px;color:var(--text-3);padding:8px">No data available.</p>';
+  const header = rows[0];
+  const data = rows.slice(1);
+  const saved = lsLoadGrid(lsKey, data);
+  let html = `<div class="below-card"><div class="below-card-title"><i class="ti ti-table"></i> ${title}</div>`;
+  html += `<div class="edit-table-wrap"><table class="edit-table">`;
+  html += `<thead><tr>${header.map(h=>`<th>${esc(h)}</th>`).join('')}</tr></thead><tbody>`;
+  saved.forEach((row,ri) => {
+    html += '<tr>';
+    // pad to header length
+    const padded = [...row];
+    while(padded.length < header.length) padded.push('');
+    padded.forEach((cell,ci) => {
+      html += `<td><textarea class="cell-edit" data-lskey="${lsKey}" data-r="${ri}" data-c="${ci}" rows="1" oninput="autoResize(this);saveCell(this)">${esc(cell)}</textarea></td>`;
+    });
+    html += '</tr>';
+  });
+  html += `</tbody></table></div>`;
+  html += `<button class="add-row-btn" onclick="addTableRow(this,'${lsKey}',${header.length})"><i class="ti ti-plus"></i> Add row</button>`;
+  html += `</div>`;
+  return html;
+}
+
+/* ── Exec cards builder ── */
+function buildExecCards(execs, lsKey) {
+  let html = `<div class="below-card"><div class="below-card-title"><i class="ti ti-users"></i> Executive Status</div><div class="exec-grid">`;
+  execs.forEach((exec, ei) => {
+    const savedIn  = lsLoadList(`${lsKey}-${ei}-in`, exec.inProgress);
+    const savedOut = lsLoadList(`${lsKey}-${ei}-out`, exec.completed);
+    html += `<div class="exec-card">
+      <div class="exec-card-header">
+        <div class="exec-name">${esc(exec.name)}</div>
+        <div class="exec-priority ${exec.priority==='Priority'?'pri':'sec'}">${exec.priority}</div>
+      </div>
+      <div class="exec-cols">
+        <div class="exec-col">
+          <div class="exec-col-label">In the Works</div>
+          <div class="exec-items" data-lskey="${lsKey}-${ei}-in">
+            ${savedIn.map((item,ii)=>`<div class="exec-item"><textarea class="exec-item-edit" data-lskey="${lsKey}-${ei}-in" data-idx="${ii}" rows="1" oninput="autoResize(this);saveExecItem(this)">${esc(item)}</textarea></div>`).join('')}
+            <div class="exec-item" style="opacity:0.5;font-style:italic;font-size:10px;cursor:pointer" onclick="addExecItem(this,'${lsKey}-${ei}-in')">+ add item</div>
+          </div>
+        </div>
+        <div class="exec-col">
+          <div class="exec-col-label">Completed</div>
+          <div class="exec-items" data-lskey="${lsKey}-${ei}-out">
+            ${savedOut.map((item,ii)=>`<div class="exec-item"><textarea class="exec-item-edit" data-lskey="${lsKey}-${ei}-out" data-idx="${ii}" rows="1" oninput="autoResize(this);saveExecItem(this)">${esc(item)}</textarea></div>`).join('')}
+            <div class="exec-item" style="opacity:0.5;font-style:italic;font-size:10px;cursor:pointer" onclick="addExecItem(this,'${lsKey}-${ei}-out')">+ add item</div>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  });
+  html += `</div></div>`;
+  return html;
+}
+
+/* ── Helpers ── */
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function lsLoadGrid(key, defaultData) {
+  const saved = LS.get('grid-' + key);
+  if (saved) { try { return JSON.parse(saved); } catch(e) {} }
+  return defaultData.map(r => [...r]);
+}
+
+function lsLoadList(key, defaultList) {
+  const saved = LS.get('list-' + key);
+  if (saved) { try { return JSON.parse(saved); } catch(e) {} }
+  return [...(defaultList || [])];
+}
+
+function saveCell(el) {
+  const key = el.dataset.lskey;
+  const r = parseInt(el.dataset.r), c = parseInt(el.dataset.c);
+  let grid = lsLoadGrid(key, []);
+  while(grid.length <= r) grid.push([]);
+  while(grid[r].length <= c) grid[r].push('');
+  grid[r][c] = el.value;
+  LS.set('grid-' + key, JSON.stringify(grid));
+}
+
+function saveExecItem(el) {
+  const key = el.dataset.lskey;
+  const idx = parseInt(el.dataset.idx);
+  let list = lsLoadList(key, []);
+  list[idx] = el.value;
+  LS.set('list-' + key, JSON.stringify(list));
+}
+
+function addTableRow(btn, lsKey, cols) {
+  const tbody = btn.closest('.below-card').querySelector('tbody');
+  const ri = tbody.rows.length;
+  const tr = document.createElement('tr');
+  for(let ci=0; ci<cols; ci++) {
+    const td = document.createElement('td');
+    td.innerHTML = `<textarea class="cell-edit" data-lskey="${lsKey}" data-r="${ri}" data-c="${ci}" rows="1" oninput="autoResize(this);saveCell(this)"></textarea>`;
+    tr.appendChild(td);
+  }
+  tbody.appendChild(tr);
+  tr.addEventListener('click', e => e.stopPropagation());
+}
+
+function addExecItem(trigger, lsKey) {
+  const list = lsLoadList(lsKey, []);
+  const idx = list.length;
+  list.push('');
+  LS.set('list-' + lsKey, JSON.stringify(list));
+  const container = trigger.closest('.exec-items');
+  const div = document.createElement('div');
+  div.className = 'exec-item';
+  div.innerHTML = `<textarea class="exec-item-edit" data-lskey="${lsKey}" data-idx="${idx}" rows="1" oninput="autoResize(this);saveExecItem(this)"></textarea>`;
+  container.insertBefore(div, trigger);
+  div.querySelector('textarea').focus();
+}
+
+function autoResize(el) {
+  el.style.height='auto';
+  el.style.height=(el.scrollHeight)+'px';
+}
+
+function showSaved(id) {
+  const el=document.getElementById(id);
+  if(el){el.style.display='flex';setTimeout(()=>{el.style.display='none';},2000);}
+}
+
+function bindTableEdits(container) {
+  container.querySelectorAll('.cell-edit').forEach(el => {
+    el.style.height = 'auto';
+    el.style.height = el.scrollHeight + 'px';
+    el.addEventListener('click', e => e.stopPropagation());
+  });
+}
+
+function bindExecEdits(container, lsKey, execs) {
+  container.querySelectorAll('.exec-item-edit').forEach(el => {
+    el.style.height = 'auto';
+    el.style.height = el.scrollHeight + 'px';
+    el.addEventListener('click', e => e.stopPropagation());
+  });
+}
+
+function clearCalendar() {
+  activeWeek = "all";
+  document.getElementById("cal-input").value = "";
+  document.getElementById("cal-label").textContent = "All dates";
+  document.getElementById("cal-btn").classList.remove("active");
+  document.getElementById("cal-clear").style.display = "none";
+  render();
+}
+
+/* ── INIT ── */
+renderMetrics();
+renderFilters();
+initPanels();
+render();
+</script>
+</body>
+</html>
